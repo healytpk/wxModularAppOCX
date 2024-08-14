@@ -1,3 +1,5 @@
+set (CMAKE_CXX_STANDARD 20)
+
 set(SRCS
 	MainFrame.cpp
 	SampleModularCore.cpp
