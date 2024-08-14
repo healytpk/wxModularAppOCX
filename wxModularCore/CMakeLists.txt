@@ -3,7 +3,8 @@ set (SRCS
 	wxModularCoreSettings.cpp)
 set (HEADERS
 	wxModularCore.h
-	wxModularCoreSettings.h)
+	wxModularCoreSettings.h
+	Auto.h)
 	
 set(LIBRARY_NAME wxModularCore)
 
