@@ -144,6 +144,7 @@ protected:
 					else
 						wxDELETE(dll);
 				}
+			}
 		}
 		return true;
 	}

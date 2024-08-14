@@ -82,55 +82,55 @@ static std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *const arg0, void 
 
 static CLSID Get_First_ActiveX_Control(TCHAR const *lib)
 {
-    ITypeLib *pTypeLib = nullptr;
+	ITypeLib *pTypeLib = nullptr;
 
-    // Load the type library from the OCX file
-    HRESULT hr = LoadTypeLib(lib, &pTypeLib);
-    if ( FAILED(hr) || (nullptr == pTypeLib) ) return CLSID_NULL;
-    Auto( pTypeLib->Release() );
+	// Load the type library from the OCX file
+	HRESULT hr = LoadTypeLib(lib, &pTypeLib);
+	if ( FAILED(hr) || (nullptr == pTypeLib) ) return CLSID_NULL;
+	Auto( pTypeLib->Release() );
 
-    UINT typeInfoCount = pTypeLib->GetTypeInfoCount();
+	UINT const typeInfoCount = pTypeLib->GetTypeInfoCount();
 
-    // Iterate through each TypeInfo in the TypeLib
-    for ( UINT i = 0u; i < typeInfoCount; ++i )
-    {
-        ITypeInfo *pTypeInfo = nullptr;
-        hr = pTypeLib->GetTypeInfo(i, &pTypeInfo);
-        if ( FAILED(hr) || (nullptr == pTypeInfo) ) continue;
-        Auto( pTypeInfo->Release() );
+	// Iterate through each TypeInfo in the TypeLib
+	for ( UINT i = 0u; i < typeInfoCount; ++i )
+	{
+		ITypeInfo *pTypeInfo = nullptr;
+		hr = pTypeLib->GetTypeInfo(i, &pTypeInfo);
+		if ( FAILED(hr) || (nullptr == pTypeInfo) ) continue;
+		Auto( pTypeInfo->Release() );
 
-        TYPEATTR *pTypeAttr = nullptr;
-        hr = pTypeInfo->GetTypeAttr(&pTypeAttr);
-        if ( FAILED(hr) || (nullptr == pTypeAttr) ) continue;
-        Auto( pTypeInfo->ReleaseTypeAttr(pTypeAttr) );
+		TYPEATTR *pTypeAttr = nullptr;
+		hr = pTypeInfo->GetTypeAttr(&pTypeAttr);
+		if ( FAILED(hr) || (nullptr == pTypeAttr) ) continue;
+		Auto( pTypeInfo->ReleaseTypeAttr(pTypeAttr) );
 
-        if ( TKIND_COCLASS != pTypeAttr->typekind ) continue;
+		if ( TKIND_COCLASS != pTypeAttr->typekind ) continue;
 
-        // Check implemented interfaces
+		// Check implemented interfaces
 		auto const count = pTypeAttr->cImplTypes;
-        for ( UINT j = 0u; j < count; ++j )
-        {
-            HREFTYPE hrefType;
-            hr = pTypeInfo->GetRefTypeOfImplType(j, &hrefType);
-            if ( FAILED(hr) ) continue;
+		for ( UINT j = 0u; j < count; ++j )
+		{
+			HREFTYPE hrefType;
+			hr = pTypeInfo->GetRefTypeOfImplType(j, &hrefType);
+			if ( FAILED(hr) ) continue;
 
-            ITypeInfo *pRefTypeInfo = nullptr;
-            hr = pTypeInfo->GetRefTypeInfo(hrefType, &pRefTypeInfo);
-            if ( FAILED(hr) || (nullptr == pRefTypeInfo) ) continue;
-            Auto( pRefTypeInfo->Release() );
+			ITypeInfo *pRefTypeInfo = nullptr;
+			hr = pTypeInfo->GetRefTypeInfo(hrefType, &pRefTypeInfo);
+			if ( FAILED(hr) || (nullptr == pRefTypeInfo) ) continue;
+			Auto( pRefTypeInfo->Release() );
 
-            TYPEATTR *pRefTypeAttr = nullptr;
-            hr = pRefTypeInfo->GetTypeAttr(&pRefTypeAttr);
-            if ( FAILED(hr) || (nullptr == pRefTypeAttr) ) continue;
-            Auto( pRefTypeInfo->ReleaseTypeAttr(pRefTypeAttr) );
+			TYPEATTR *pRefTypeAttr = nullptr;
+			hr = pRefTypeInfo->GetTypeAttr(&pRefTypeAttr);
+			if ( FAILED(hr) || (nullptr == pRefTypeAttr) ) continue;
+			Auto( pRefTypeInfo->ReleaseTypeAttr(pRefTypeAttr) );
 
-            // Check if the interface is dispatchable
+			// Check if the interface is dispatchable
 			// and if so, return its CLSID
-            if ( pRefTypeAttr->wTypeFlags & TYPEFLAG_FDISPATCHABLE ) return pTypeAttr->guid;
-        }
-    }
+			if ( pRefTypeAttr->wTypeFlags & TYPEFLAG_FDISPATCHABLE ) return pTypeAttr->guid;
+		}
+	}
 
-    return CLSID_NULL;
+	return CLSID_NULL;
 }
 
 extern "C" {
@@ -174,7 +174,7 @@ extern "C" {
 		HRESULT retval = 0;
 
 #if 1
-	    CLSID clsid = CLSID_NULL;
+		CLSID clsid = CLSID_NULL;
 		{
 			TCHAR buffer[MAX_PATH];
 			buffer[0] = '\0';
@@ -184,6 +184,7 @@ extern "C" {
 		}
 		if ( CLSID_NULL == clsid ) return nullptr;
 #else
+        // You can hardcode your own CLSID here for testing:
 		constexpr CLSID clsid = { 0x6BF52A52, 0x394A, 0x11d3, {0xB1, 0x53, 0x00, 0xC0, 0x4F, 0x79, 0xFA, 0xA6 } };  // Windows Media Player
 		//constexpr CLSID clsid = { 0x48E96FFE, 0x1D86, 0x4BE5, {0x9E, 0xE0, 0xF2, 0x4D, 0x44, 0x93, 0x2E, 0x34 } };  // MFCActiveXControl1
 #endif
