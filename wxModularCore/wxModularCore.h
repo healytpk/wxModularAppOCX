@@ -101,43 +101,50 @@ protected:
 		const wxString & subFolder)
 	{
 		wxFileName fn;
-		fn.AssignDir(pluginsDirectory);	   wxLogDebug(wxT("%s"), fn.GetFullPath().data());
-		fn.AppendDir(subFolder);           wxLogDebug(wxT("%s"), fn.GetFullPath().data());
-		if ( !fn.DirExists() ) return false;
+		fn.AssignDir(pluginsDirectory);
+		wxLogDebug(wxT("%s"), fn.GetFullPath().data());
+		fn.AppendDir(subFolder);
+		wxLogDebug(wxT("%s"), fn.GetFullPath().data());
+		if (!fn.DirExists())
+			return false;
 
 		if(!wxDirExists(fn.GetFullPath())) return false;
-		wxString wildcard = wxString::Format(wxT("*.%s"), GetPluginExt().GetData());
+		wxString wildcard = wxString::Format(wxT("*.%s"), 
+			GetPluginExt().GetData());
 		wxArrayString pluginPaths;
-		wxDir::GetAllFiles(fn.GetFullPath(), &pluginPaths, wildcard);
-		wxDir::GetAllFiles(fn.GetFullPath(), &pluginPaths, "*.ocx");
+		wxDir::GetAllFiles(fn.GetFullPath(), 
+			&pluginPaths, wildcard);
+		wxDir::GetAllFiles(fn.GetFullPath(),
+			&pluginPaths, "*.ocx");
 
-		for ( size_t i = 0; i < pluginPaths.GetCount(); ++i )
+		for(size_t i = 0; i < pluginPaths.GetCount(); ++i)
 		{
 			wxString fileName = pluginPaths[i];
-			auto *dll = new wxDynamicLibrary(fileName);
-			if ( false == dll->IsLoaded() ) continue;
-
-			auto const pfnCreatePlugin = (CreatePluginFunctionType)dll->RawGetSymbol(wxT("CreatePlugin"));
-
-			if (pfnCreatePlugin)
+			wxDynamicLibrary * dll = new wxDynamicLibrary(fileName);
+			if (dll->IsLoaded())
 			{
-				PluginType* plugin = pfnCreatePlugin();
-				RegisterPlugin(plugin, list);
-				m_DllList.Append(dll);
-				pluginDictionary[plugin] = dll;
-				continue;
-			}
+				auto const pfnCreatePlugin = (CreatePluginFunctionType)dll->RawGetSymbol( wxT("CreatePlugin") );
 
-			PluginType *const plugin = Process_ActiveX_Plugin<PluginType>(dll);
-			if ( plugin )
-			{
-				RegisterPlugin(plugin, list);
-				m_DllList.Append(dll);
-				pluginDictionary[plugin] = dll;
-			}
-			else wxDELETE(dll);
+				if (pfnCreatePlugin)
+				{
+					PluginType * plugin = pfnCreatePlugin();
+					RegisterPlugin(plugin, list);
+					m_DllList.Append(dll);
+					pluginDictionary[plugin] = dll;
+				}
+				else
+				{
+					PluginType *const plugin = Process_ActiveX_Plugin<PluginType>(dll);
+					if ( plugin )
+					{
+						RegisterPlugin(plugin, list);
+						m_DllList.Append(dll);
+						pluginDictionary[plugin] = dll;
+					}
+					else
+						wxDELETE(dll);
+				}
 		}
-
 		return true;
 	}
 
@@ -160,7 +167,6 @@ PluginType *Process_ActiveX_Plugin(wxDynamicLibrary*)
 
 #include <cassert>        // assert
 #include <new>            // new(nothrow)
-#include <type_traits>    // is_abstract_v
 #include <wx/string.h>    // wxString
 #include <wx/window.h>    // wxWindow
 
