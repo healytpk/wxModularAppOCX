@@ -1,0 +1,50 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: CMake followed by MSBuild
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_CONFIGURATION: Debug
+  BUILD_TYPE: Debug
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Install wxWidgets
+      run: |
+        mkdir wxWidgets | Out-Null
+        cd wxWidgets
+        curl -OL https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxWidgets-3.2.5-headers.7z
+        curl -OL https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxMSW-3.2.5_vc14x_x64_Dev.7z
+        7z x wxWidgets-3.2.5-headers.7z
+        7z x wxMSW-3.2.5_vc14x_x64_Dev.7z
+        cd ..
+
+    - name: Execute CMake
+      run: cd build && cmd /c "set WXWIN=%cd%\..\wxWidgets && cm64.bat" && cd ..
+
+    - name: Run MSBuild
+      run: cd build\Win && msbuild wxModularHost.sln
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: build/bin/Debug/
