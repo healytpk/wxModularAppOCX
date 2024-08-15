@@ -77,7 +77,7 @@ static std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *const arg0, void 
 {
 	static wxDynamicLibrary dll( wxT("atl.dll") );  // must keep loaded -- don't unload it
 	if ( false == dll.IsLoaded() ) return 666;
-	auto const pfnAttach = (std::int32_t(*__stdcall)(void*, void*, void*)) dll.RawGetSymbol("AtlAxAttachControl");
+	auto const pfnAttach = (std::int32_t(__stdcall*)(void*, void*, void*)) dll.RawGetSymbol("AtlAxAttachControl");
 	if ( nullptr == pfnAttach ) return 666;
 	return pfnAttach(arg0, arg1, nullptr);
 }
@@ -165,7 +165,7 @@ extern "C" {
 		// instead for 'DllGetClassObject' to find an ActiveX control
 
 		auto const pfnDllGetClassObject =
-			(HRESULT(*WINAPI)(REFCLSID rclsid, REFIID riid, void **ppv))dll->GetSymbol("DllGetClassObject");
+			(HRESULT(__stdcall*)(REFCLSID,REFIID,void**)) dll->GetSymbol("DllGetClassObject");
 
 		if ( nullptr == pfnDllGetClassObject ) return nullptr;
 
