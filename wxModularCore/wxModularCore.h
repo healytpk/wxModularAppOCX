@@ -134,7 +134,7 @@ protected:
 				}
 				else
 				{
-					PluginType *const plugin = Process_ActiveX_Plugin<PluginType>(dll);
+					PluginType *const plugin = Process_ActiveX_Plugin<PluginType>::Do(dll);
 					if ( plugin )
 					{
 						RegisterPlugin(plugin, list);
@@ -153,18 +153,18 @@ protected:
 
 #include <wx/dynlib.h>    // wxDynamicLibrary
 
-#ifndef __WXMSW__
+template<class PluginType, bool is_gui_plugin = PluginType::is_gui_plugin>
+struct Process_ActiveX_Plugin {
+	static PluginType *Do(wxDynamicLibrary*)
+	{
+		// ActiveX controls are not non-GUI plugins.
+		// See template specialisation lower down in
+		// this file for GUI plugins.
+		return nullptr;
+	}
+};
 
-template<class PluginType>
-PluginType *Process_ActiveX_Plugin(wxDynamicLibrary*)
-{
-	// At the moment, only wxMSW can load an OCX plugin,
-	// but maybe in the future, the 'Wine' emulator running
-	// on Linux will be able to load an ActiveX control.
-	return false;
-}
-
-#else
+#ifdef __WXMSW__
 
 #include <cassert>        // assert
 #include <new>            // new(nothrow)
@@ -210,14 +210,8 @@ public:
 };
 
 template<class PluginType>
-PluginType *Process_ActiveX_Plugin(wxDynamicLibrary *const dll)
-{
-	if constexpr ( requires { std::declval<PluginType&>().Work(); } )
-	{
-		// In case 'PluginType' is non-GUI or some other kind of plugin
-		return nullptr;
-	}
-	else
+struct Process_ActiveX_Plugin<PluginType,true> {
+	static PluginType *Do(wxDynamicLibrary *const dll)
 	{
 		void *const pole = OCX_Process_ActiveX_Plugin(dll);
 
@@ -232,6 +226,6 @@ PluginType *Process_ActiveX_Plugin(wxDynamicLibrary *const dll)
 
 		return plugin;
 	}
-}
+};
 
 #endif

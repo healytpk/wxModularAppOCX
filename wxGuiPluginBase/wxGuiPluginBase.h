@@ -6,6 +6,8 @@ class DEMO_API wxGuiPluginBase : public wxObject
 {
 	DECLARE_ABSTRACT_CLASS(wxGuiPluginBase)
 public:
+	static constexpr bool is_plugin     = true;
+	static constexpr bool is_gui_plugin = true;
 	wxGuiPluginBase(wxEvtHandler * handler);
 	virtual ~wxGuiPluginBase();
 	
