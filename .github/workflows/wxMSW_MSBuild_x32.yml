@@ -30,8 +30,8 @@ jobs:
 
     - name: Install wxWidgets
       run: |
-        mkdir wxWidgets | Out-Null
-        cd wxWidgets
+        mkdir wxWidgets_MSW32 | Out-Null
+        cd wxWidgets_MSW32
         curl -OL https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxWidgets-3.2.5-headers.7z
         curl -OL https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxMSW-3.2.5_vc14x_Dev.7z
         7z x wxWidgets-3.2.5-headers.7z
@@ -39,10 +39,12 @@ jobs:
         cd ..
 
     - name: Execute CMake
-      run: cd build && cmd /c "set WXWIN=%cd%\..\wxWidgets && cm86.bat" && cd ..
+      run: cd build && cmd /c "set WXWIN=%cd%\..\wxWidgets_MSW32 && cm86.bat" && cd ..
 
     - name: Run MSBuild
-      run: cd build\Win && msbuild wxModularHost.sln
+      run: |
+        cd build\Win && msbuild wxModularHost.sln && cd ..\..
+        copy wxWidgets_MSW32\vc14x_dll\*.dll build\bin\Debug
 
     - uses: actions/upload-artifact@v2
       with:
