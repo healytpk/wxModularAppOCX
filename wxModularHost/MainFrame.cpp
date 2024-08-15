@@ -188,7 +188,19 @@ void MainFrame::AddPagesFromGuiPlugins()
 			wxWindow * page = plugin->CreatePanel(m_Notebook);
 			if(page)
 			{
+#if 1
+                // The following is a workaround to
+                // prevent a linker error on Linux
+                bool (wxAuiNotebook::*const mfp)(wxWindow*,wxString const&,bool,int) = &wxAuiNotebook::AddPage;
+                (m_Notebook->*mfp)(page, plugin->GetName(), false, -1);
+#else
+                // The next line causes a linker error on Linux
+                // because it looks for:
+                //     bool wxAuiNotebook::AddPage(wxWindow*,wxString const&,bool,wxBitmapBundle const&)
+                // instead of:
+                //     bool wxAuiNotebook::AddPage(wxWindow*,wxString const&,bool,int)
 				m_Notebook->AddPage(page, plugin->GetName());
+#endif
 			}
 		}
 	}
