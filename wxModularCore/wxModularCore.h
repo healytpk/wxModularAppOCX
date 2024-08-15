@@ -1,9 +1,22 @@
 #pragma once
 
+#include <wx/dynlib.h>    // wxDynamicLibrary
+
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
 
 class wxModularCoreSettings;
+
+template< class PluginType, bool is_gui_plugin = PluginType::is_gui_plugin >
+struct Process_ActiveX_Plugin {
+	static PluginType *Do(wxDynamicLibrary*)
+	{
+		// ActiveX controls are not non-GUI plugins.
+		// See template specialisation lower down in
+		// this file for GUI plugins.
+		return nullptr;
+	}
+};
 
 class wxModularCore
 {
@@ -151,19 +164,6 @@ protected:
 
 };
 
-#include <wx/dynlib.h>    // wxDynamicLibrary
-
-template<class PluginType, bool is_gui_plugin = PluginType::is_gui_plugin>
-struct Process_ActiveX_Plugin {
-	static PluginType *Do(wxDynamicLibrary*)
-	{
-		// ActiveX controls are not non-GUI plugins.
-		// See template specialisation lower down in
-		// this file for GUI plugins.
-		return nullptr;
-	}
-};
-
 #ifdef __WXMSW__
 
 #include <cassert>        // assert
@@ -210,7 +210,7 @@ public:
 };
 
 template<class PluginType>
-struct Process_ActiveX_Plugin<PluginType,true> {
+struct Process_ActiveX_Plugin< PluginType, true > {
 	static PluginType *Do(wxDynamicLibrary *const dll)
 	{
 		void *const pole = OCX_Process_ActiveX_Plugin(dll);
