@@ -4,7 +4,7 @@ template<class L>
 class AtScopeExit {
     L &m_lambda;
 public:
-    AtScopeExit(L &action) : m_lambda(action) {}
+    AtScopeExit(L &action) noexcept : m_lambda(action) {}
     ~AtScopeExit(void) noexcept
     {
         try { m_lambda(); } catch(...){}
