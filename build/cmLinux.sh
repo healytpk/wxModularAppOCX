@@ -9,7 +9,7 @@ echo directory "LinuxDebug"
 rm -dr "LinuxDebug"
 mkdir "LinuxDebug"
 cd "LinuxDebug"
-cmake -DCMAKE_BUILD_TYPE:STRING=Debug ../
+cmake -DCMAKE_BUILD_TYPE:STRING=Debug ../ -DCMAKE_CXX_STANDARD_LIBRARIES="-lwx_gtk3ud_aui-3.2"
 cd ..
 
 # ----------------------------------
@@ -20,5 +20,5 @@ echo directory "LinuxRelease"
 rm -dr "LinuxRelease"
 mkdir "LinuxRelease"
 cd "LinuxRelease"
-cmake -DCMAKE_BUILD_TYPE:STRING=Release ../
+cmake -DCMAKE_BUILD_TYPE:STRING=Release ../ -DCMAKE_CXX_STANDARD_LIBRARIES="-lwx_gtk3u_aui-3.2"
 cd ..
