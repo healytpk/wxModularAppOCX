@@ -9,8 +9,7 @@ echo directory "LinuxDebug"
 rm -dr "LinuxDebug"
 mkdir "LinuxDebug"
 cd "LinuxDebug"
-cmake -G "Eclipse CDT4 - Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING=Debug ../ 
-#	cmake -DCMAKE_BUILD_TYPE:STRING=Debug ../ 
+cmake -DCMAKE_BUILD_TYPE:STRING=Debug ../
 cd ..
 
 # ----------------------------------
@@ -21,7 +20,5 @@ echo directory "LinuxRelease"
 rm -dr "LinuxRelease"
 mkdir "LinuxRelease"
 cd "LinuxRelease"
-cmake -G "Eclipse CDT4 - Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING=Release ../ 
-#	cmake -DCMAKE_BUILD_TYPE:STRING=Release ../ 
+cmake -DCMAKE_BUILD_TYPE:STRING=Release ../
 cd ..
-
