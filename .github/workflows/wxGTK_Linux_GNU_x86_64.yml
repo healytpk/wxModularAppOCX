@@ -33,3 +33,9 @@ jobs:
     - name: Run GNU Make with GNU compiler
       run: |
         cd build/LinuxRelease && make && cd ../..
+        cp --preserve=links /usr/lib/x86_64-linux-gnu/libwx*.so* build/LinuxRelease/
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: build/LinuxRelease
