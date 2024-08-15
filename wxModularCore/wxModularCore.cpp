@@ -61,10 +61,12 @@ wxString wxModularCore::GetPluginExt()
 #include <cassert>       // assert
 #include <cstdint>       // int32_t
 #include <new>           // new(nothrow)
-#include <Windows.h>
-#include <OleAuto.h>
+#include <guiddef.h>     // CLSID, CLSID_NULL, REFCLSID, REFIID
+#include <oaidl.h>       // ITypeLib
+#include <objbase.h>     // CoInitializeEx
+#include <oleauto.h>     // LoadTypeLib
 #include <oleidl.h>      // IOleObject
-#include <comdef.h>
+#include <unknwn.h>      // IClassFactory
 #include <wx/dynlib.h>   // wxDynamicLibrary
 #include <wx/panel.h>    // wxPanel
 #include <wx/string.h>   // wxString
@@ -163,7 +165,7 @@ extern "C" {
 		// instead for 'DllGetClassObject' to find an ActiveX control
 
 		auto const pfnDllGetClassObject =
-			(HRESULT(*WINAPI)(REFCLSID rclsid, REFIID riid, LPVOID * ppv))dll->GetSymbol("DllGetClassObject");
+			(HRESULT(*WINAPI)(REFCLSID rclsid, REFIID riid, void **ppv))dll->GetSymbol("DllGetClassObject");
 
 		if ( nullptr == pfnDllGetClassObject ) return nullptr;
 
@@ -184,8 +186,8 @@ extern "C" {
 		}
 		if ( CLSID_NULL == clsid ) return nullptr;
 #else
-        // You can hardcode your own CLSID here for testing:
-		constexpr CLSID clsid = { 0x6BF52A52, 0x394A, 0x11d3, {0xB1, 0x53, 0x00, 0xC0, 0x4F, 0x79, 0xFA, 0xA6 } };  // Windows Media Player
+	// You can hardcode your own CLSID here for testing:
+		  constexpr CLSID clsid = { 0x6BF52A52, 0x394A, 0x11d3, {0xB1, 0x53, 0x00, 0xC0, 0x4F, 0x79, 0xFA, 0xA6 } };  // Windows Media Player
 		//constexpr CLSID clsid = { 0x48E96FFE, 0x1D86, 0x4BE5, {0x9E, 0xE0, 0xF2, 0x4D, 0x44, 0x93, 0x2E, 0x34 } };  // MFCActiveXControl1
 #endif
 
@@ -211,4 +213,3 @@ extern "C" {
 }
 
 #endif  // ifdef __WXMSW__
-
