@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: CMake followed by MSBuild
+name:  wxMSW_MSBuild_x32
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         cd ..
 
     - name: Execute CMake
-      run: cd build && cmd /c "set WXWIN=%cd%\..\wxWidgets && cm32.bat" && cd ..
+      run: cd build && cmd /c "set WXWIN=%cd%\..\wxWidgets && cm86.bat" && cd ..
 
     - name: Run MSBuild
       run: cd build\Win && msbuild wxModularHost.sln
