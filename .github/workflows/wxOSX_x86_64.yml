@@ -1,0 +1,46 @@
+name: wxOSX_x86_64
+
+on:
+  push:
+    branches: '*'
+  pull_request:
+    branches: '*'
+  workflow_dispatch:
+    branches: '*'
+
+jobs:
+  build:
+
+    runs-on: macos-14
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install wxWidgets
+      run: |
+        curl https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxWidgets-3.2.5.tar.bz2
+        tar xf wxWidgets-3.2.5.tar.bz2
+        cd wxwidgets-3.2.5
+        mkdir buildOSX
+        cd buildOSX
+        ../configure --enable-debug
+        make
+        cd ../..
+        export WXWIN=$pwd/wxwidgets-3.2.5/
+        #wx-config --list
+        #wx-config --cxxflags
+        #wx-config --libs
+        #g++ --version | grep g++
+
+    - name: Run CMake
+      run: |
+        cd build && ./cmAppleMac.sh && cd ..
+
+    - name: Run GNU Make with GNU compiler
+      run: |
+        cd build/Mac && xcodebuild build && cd ../..
+        cp -R wxWidgets-3.2.5 build/bin/Debug
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: build/bin/Debug
