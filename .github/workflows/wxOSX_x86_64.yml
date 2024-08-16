@@ -21,7 +21,7 @@ jobs:
         tar xzf tiff-4.6.0t.tar.gz
         cd tiff-4.6.0t
         ./configure
-        make
+        make -j$(getconf _NPROCESSORS_ONLN)
         sudo make install
         cd ..
         curl -L https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxWidgets-3.2.5.tar.bz2 --output wxWidgets-3.2.5.tar.bz2
@@ -30,9 +30,8 @@ jobs:
         mkdir buildOSX
         cd buildOSX
         ../configure --enable-debug
-        make
+        make -j$(getconf _NPROCESSORS_ONLN)
         cd ../..
-        export WXWIN=$pwd/wxwidgets-3.2.5/
         #wx-config --list
         #wx-config --cxxflags
         #wx-config --libs
@@ -40,7 +39,7 @@ jobs:
 
     - name: Run CMake
       run: |
-        cd build && ./cmAppleMac.sh && cd ..
+        export WXWIN=$pwd/wxwidgets-3.2.5/ && cd build && chmod +x ./cmAppleMac.sh && ./cmAppleMac.sh && cd ..
 
     - name: Run GNU Make with GNU compiler
       run: |
