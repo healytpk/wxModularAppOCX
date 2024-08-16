@@ -18,7 +18,7 @@ jobs:
     - name: Install wxWidgets
       run: |
         curl https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxWidgets-3.2.5.tar.bz2
-        tar xf wxWidgets-3.2.5.tar.bz2
+        tar xjf wxWidgets-3.2.5.tar.bz2
         cd wxwidgets-3.2.5
         mkdir buildOSX
         cd buildOSX
