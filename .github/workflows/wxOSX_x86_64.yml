@@ -31,6 +31,7 @@ jobs:
         cd buildOSX
         ../configure --enable-debug
         make -j$(getconf _NPROCESSORS_ONLN)
+        sudo make install
         cd ../..
         #wx-config --list
         #wx-config --cxxflags
@@ -39,12 +40,17 @@ jobs:
 
     - name: Run CMake
       run: |
-        export WXWIN=$pwd/wxwidgets-3.2.5/ && cd build && chmod +x ./cmAppleMac.sh && ./cmAppleMac.sh && cd ..
+        cd build
+        chmod +x ./cmAppleMac.sh
+        ./cmAppleMac.sh
+        cd ..
 
     - name: Run GNU Make with GNU compiler
       run: |
-        cd build/Mac && xcodebuild build && cd ../..
-        cp -R wxWidgets-3.2.5 build/bin/Debug
+        cd build/Mac
+        xcodebuild build
+        cd ../..
+        cp -R wxWidgets-3.2.5/lib build/bin/Debug
 
     - uses: actions/upload-artifact@v2
       with:
