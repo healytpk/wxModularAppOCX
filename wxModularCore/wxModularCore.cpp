@@ -42,18 +42,19 @@ wxString wxModularCore::GetPluginsPath(bool forceProgramPath) const
 #endif
 }
 
-wxString wxModularCore::GetPluginExt()
+std::regex wxModularCore::GetPluginRegex() const
 {
-	return 
+	return std::regex(
 #if defined(__WXMSW__)
-		wxT("dll");
+		"(.+\.dll)|(.+\.ocx)"
 #elif defined(__WXGTK__)
-		wxT("so");
+		".+\.so(\.[0-9]+)*"
 #elif defined(__WXMAC__)
-		wxT("dylib");
+		".*\.dylib"
 #else
-		wxEmptyString;
+		"no_known_plugin"
 #endif
+	);
 }
 
 #ifdef __WXMSW__

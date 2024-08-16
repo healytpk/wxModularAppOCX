@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>        // size_t
+#include <regex>          // regex, regex_match
 #include <wx/dynlib.h>    // wxDynamicLibrary
 
 // We need to keep the list of loaded DLLs
@@ -25,7 +27,7 @@ public:
 	virtual ~wxModularCore();
 
 	virtual wxString GetPluginsPath(bool forceProgramPath) const;
-	virtual wxString GetPluginExt();
+	virtual std::regex GetPluginRegex() const;
 
 	virtual bool LoadAllPlugins(bool forceProgramPath) = 0;
 	virtual bool UnloadAllPlugins() = 0;
@@ -122,13 +124,23 @@ protected:
 			return false;
 
 		if(!wxDirExists(fn.GetFullPath())) return false;
-		wxString wildcard = wxString::Format(wxT("*.%s"), 
-			GetPluginExt().GetData());
 		wxArrayString pluginPaths;
 		wxDir::GetAllFiles(fn.GetFullPath(), 
-			&pluginPaths, wildcard);
-		wxDir::GetAllFiles(fn.GetFullPath(),
-			&pluginPaths, "*.ocx");
+			&pluginPaths, wxEmptyString, wxDIR_FILES|wxDIR_DIRS|wxDIR_HIDDEN);
+
+		// ==== The 'pluginPaths' now contains all of the
+		// ==== filenames in the directory, so we iterate
+		// ==== through them all to remove the ones
+		// ==== that don't match the regex for a plugin
+		for ( std::size_t i = 0u; i < pluginPaths.GetCount(); ++i )
+		{
+			// Hopefully converting the wxString to an std::string
+			// will leave us with a string that we can do regex on
+			if ( false == std::regex_match( pluginPaths[i].ToStdString(), this->GetPluginRegex() ) )
+			{
+				pluginPaths.RemoveAt( i-- );
+			}
+		}
 
 		for(size_t i = 0; i < pluginPaths.GetCount(); ++i)
 		{
