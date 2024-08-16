@@ -17,6 +17,13 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install wxWidgets
       run: |
+        curl -L http://www.libtiff.org/downloads/tiff-4.6.0t.tar.gz --output tiff-4.6.0t.tar.gz
+        tar xzf tiff-4.6.0t.tar.gz
+        cd tiff-4.6.0t
+        ./configure
+        make
+        sudo make install
+        cd ..
         curl -L https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.5/wxWidgets-3.2.5.tar.bz2 --output wxWidgets-3.2.5.tar.bz2
         tar xjf wxWidgets-3.2.5.tar.bz2
         cd wxwidgets-3.2.5
