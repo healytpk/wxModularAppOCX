@@ -48,8 +48,8 @@ jobs:
     - name: Run GNU Make with GNU compiler
       run: |
         cd build
-        mkdir bin
-        mkdir bin/Debug
+        mkdir -p bin
+        mkdir -p bin/Debug
         cd Mac
         #make -j$(getconf _NPROCESSORS_ONLN)
         cd ../..
