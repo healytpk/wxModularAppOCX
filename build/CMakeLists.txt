@@ -26,7 +26,6 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
 if(APPLE)
 	set(OS_BASE_NAME Mac)
-	set(CMAKE_OSX_SYSROOT "macosx15.0")
 endif(APPLE)
 if(LINUX)
 	set(OS_BASE_NAME Linux)
