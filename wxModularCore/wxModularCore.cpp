@@ -46,11 +46,11 @@ std::regex wxModularCore::GetPluginRegex() const
 {
 	return std::regex(
 #if defined(__WXMSW__)
-		"(.+\.dll)|(.+\.ocx)"
+		"(.+\\.dll)|(.+\\.ocx)"
 #elif defined(__WXGTK__)
-		".+\.so(\.[0-9]+)*"
+		".+\\.so(\\.[0-9]+)*"
 #elif defined(__WXMAC__)
-		".*\.dylib"
+		".*\\.dylib"
 #else
 		"no_known_plugin"
 #endif
