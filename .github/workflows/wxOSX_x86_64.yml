@@ -47,8 +47,11 @@ jobs:
 
     - name: Run GNU Make with GNU compiler
       run: |
-        cd build/Mac
-        make -j$(getconf _NPROCESSORS_ONLN)
+        cd build
+        mkdir bin
+        mkdir bin/Debug
+        cd Mac
+        #make -j$(getconf _NPROCESSORS_ONLN)
         cd ../..
         cp -R wxWidgets-3.2.5/lib build/bin/Debug
 
