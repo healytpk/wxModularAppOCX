@@ -1,4 +1,5 @@
 #include "stdwx.h"
+#include <wx/init.h>             // wxUninitialize
 #include <wxGuiPluginBase.h>
 #include "SampleGuiPlugin2.h"
 
@@ -14,6 +15,5 @@ PLUGIN_EXPORTED_API void DeletePlugin(wxGuiPluginBase * plugin)
 
 PLUGIN_EXPORTED_API void *Get_Address_Of_wxUninitialze(void)
 {
-	extern void wxUninitialize(void);   // defined in wxWidgets/src/common/init.cpp
 	return (void*)&wxUninitialize;
 }
