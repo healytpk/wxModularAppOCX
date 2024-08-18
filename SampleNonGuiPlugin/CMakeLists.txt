@@ -35,7 +35,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRCS})
 
 set(DLL_DIR bin)
 if(APPLE)
-	target_link_options(${LIBRARY_NAME} PRIVATE "-undefined dynamic_lookup")
+	target_link_options(${LIBRARY_NAME} PRIVATE -undefined dynamic_lookup)
 	set(BUNDLE_SUBFOLDER 
 		"/$(CONFIGURATION)/${PROJECT_NAME}.app/Contents/PlugIns")
 endif(APPLE)
