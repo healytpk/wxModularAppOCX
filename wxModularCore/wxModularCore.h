@@ -3,6 +3,7 @@
 #include <cstddef>        // size_t
 #include <regex>          // regex, regex_match
 #include <wx/dynlib.h>    // wxDynamicLibrary
+#include "wxPluginBase.h" // wxPluginBase
 
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
