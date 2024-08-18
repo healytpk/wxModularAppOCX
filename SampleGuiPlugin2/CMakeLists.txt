@@ -38,6 +38,7 @@ if(APPLE)
 		"/$(CONFIGURATION)/${PROJECT_NAME}.app/Contents/PlugIns")
 endif(APPLE)
 if(WIN32)
+	target_link_options(${LIBRARY_NAME} PRIVATE /FORCE)
         set(TARGET_LOCATION
                 ${PROJECT_SOURCE_DIR}/${DLL_DIR}${LIB_SUFFIX}/${CMAKE_CFG_INTDIR}/plugins/gui)
 elseif (LINUX)
