@@ -1,4 +1,4 @@
-name: wxGTK_Linux_x86_64
+name: wxGTK_x86_64
 
 on:
   push:
