@@ -172,6 +172,12 @@ protected:
 							RegisterPlugin(plugin, list);
 							m_DllList.Append(dll);
 							pluginDictionary[plugin] = dll;
+							continue;
+						}
+						else
+						{
+							auto const pfnDelete = (void(*)(wxPluginBase*))dll->RawGetSymbol( wxT("DeletePlugin") );
+							if ( pfnDelete ) pfnDelete( plugin_base );
 						}
 					}
 				}
@@ -183,10 +189,11 @@ protected:
 						RegisterPlugin(plugin, list);
 						m_DllList.Append(dll);
 						pluginDictionary[plugin] = dll;
+						continue;
 					}
-					else
-						wxDELETE(dll);
 				}
+
+				wxDELETE(dll);
 			}
 		}
 		return true;

@@ -9,6 +9,7 @@ set (HEADERS
 	wxModularCore.h
 	wxModularCoreSettings.h
 	Declarations.h
+	wxPluginBase.h
 	wxGuiPluginBase.h
 	wxGuiPluginWindowBase.h
 	wxNonGuiPluginBase.h
