@@ -11,6 +11,9 @@ set(LIBRARY_NAME SampleGuiPlugin1)
 if(WIN32)
 	set(SRCS ${SRCS} ${LIBRARY_NAME}.def)
 	set(PREPROCESSOR_DEFINITIONS ${PREPROCESSOR_DEFINITIONS};/D_USRDLL;/D__STDC_CONSTANT_MACROS)
+	link_directories(${LINK_DIRECTORIES} ${PROJECT_ROOT_DIR}/wxModularHost/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName))
+	set(DEMO_LIBS wxModularHost.lib)
+	add_dependencies(${LIBRARY_NAME} wxModularHost)
 endif(WIN32)
 if(LINUX OR APPLE)
 	SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
@@ -27,12 +30,7 @@ add_definitions(${PREPROCESSOR_DEFINITIONS})
 include_directories(${INCLUDE_DIRECTORIES} ${BASE_INCLUDE_DIRECTORIES}
        ${PROJECT_ROOT_DIR}/wxModularCore)
 
-link_directories(${LINK_DIRECTORIES} ${PROJECT_ROOT_DIR}/wxModularHost/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName))
-set(DEMO_LIBS wxModularHost.lib)
-
 add_library(${LIBRARY_NAME} SHARED ${SRCS})
-
-add_dependencies(${LIBRARY_NAME} wxModularHost)
 
 set(DLL_DIR bin)
 if(APPLE)
