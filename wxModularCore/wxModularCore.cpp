@@ -43,15 +43,14 @@ wxString wxModularCore::GetPluginsPath(bool forceProgramPath) const
 
 std::regex wxModularCore::GetPluginRegex() const
 {
-	return std::regex(
 #if defined(__WXMSW__)
-		"(.+\\.dll)|(.+\\.ocx)"
+	return std::regex( "((?!wx).+\\.dll)|(.+\\.ocx)", std::regex::icase );
 #elif defined(__WXGTK__)
-		".+\\.so(\\.[0-9]+)*"
+	return std::regex("(?!libwx).+\\.so(\\.[0-9]+)*");
 #elif defined(__WXMAC__)
-		".*\\.dylib"
+	return std::regex("(?!libwx).+\\.dylib");
 #else
-		"no_known_plugin"
+	return std::regex("no_known_plugin");
 #endif
 	);
 }
