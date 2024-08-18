@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name:  wxMSW_MSBuild_x64
+name:  wxMSW_x86_64_MSBuild
 
 on:
   push:
@@ -48,5 +48,5 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: artifacts
+        name: artifacts_wxMSW_x86_32_MSBuild
         path: build/bin/Debug/
