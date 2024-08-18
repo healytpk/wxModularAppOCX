@@ -27,9 +27,12 @@ add_definitions(${PREPROCESSOR_DEFINITIONS})
 include_directories(${INCLUDE_DIRECTORIES} ${BASE_INCLUDE_DIRECTORIES}
        ${PROJECT_ROOT_DIR}/wxModularCore)
 
-link_directories(${LINK_DIRECTORIES})
+link_directories(${LINK_DIRECTORIES} ${PROJECT_ROOT_DIR}/wxModularHost/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName))
+set(DEMO_LIBS wxModularHost.lib)
 
 add_library(${LIBRARY_NAME} SHARED ${SRCS})
+
+add_dependencies(${LIBRARY_NAME} wxModularHost)
 
 set(DLL_DIR bin)
 if(APPLE)
@@ -38,14 +41,13 @@ if(APPLE)
 		"/$(CONFIGURATION)/${PROJECT_NAME}.app/Contents/PlugIns")
 endif(APPLE)
 if(WIN32)
-	target_link_options(${LIBRARY_NAME} PRIVATE /FORCE)
-        set(TARGET_LOCATION
-                ${PROJECT_SOURCE_DIR}/${DLL_DIR}${LIB_SUFFIX}/${CMAKE_CFG_INTDIR}/plugins/gui)
+	set(TARGET_LOCATION
+		${PROJECT_SOURCE_DIR}/${DLL_DIR}${LIB_SUFFIX}/${CMAKE_CFG_INTDIR}/plugins/gui)
 elseif (LINUX)
-        set(TARGET_LOCATION
-                ${PROJECT_SOURCE_DIR}/${DLL_DIR}${LIB_SUFFIX}${BUNDLE_SUBFOLDER}/plugins/gui)
+	set(TARGET_LOCATION
+		${PROJECT_SOURCE_DIR}/${DLL_DIR}${LIB_SUFFIX}${BUNDLE_SUBFOLDER}/plugins/gui)
 else()
-        set(TARGET_LOCATION
+	set(TARGET_LOCATION
                 ${PROJECT_SOURCE_DIR}/${DLL_DIR}${LIB_SUFFIX}${BUNDLE_SUBFOLDER}/gui)
 endif(WIN32)
 if(LINUX OR APPLE)

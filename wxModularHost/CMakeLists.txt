@@ -65,6 +65,10 @@ endif(APPLE)
 
 target_link_libraries(${EXECUTABLE_NAME} ${LIBS})
 
+if(MSVC)
+    target_link_options(${EXECUTABLE_NAME} PRIVATE "/WHOLEARCHIVE:wxModularCore.lib")
+endif()
+
 add_dependencies(${EXECUTABLE_NAME} wxModularCore)
 
 target_precompile_headers(${EXECUTABLE_NAME} PRIVATE ${PROJECT_ROOT_DIR}/include/stdwx.h ${PROJECT_ROOT_DIR}/include/stdwx.cpp)
