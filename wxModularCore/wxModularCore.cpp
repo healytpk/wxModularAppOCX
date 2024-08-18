@@ -52,7 +52,6 @@ std::regex wxModularCore::GetPluginRegex() const
 #else
 	return std::regex("no_known_plugin");
 #endif
-	);
 }
 
 #ifdef __WXMSW__
