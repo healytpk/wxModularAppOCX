@@ -11,12 +11,8 @@ set(LIBRARY_NAME SampleGuiPlugin1)
 if(WIN32)
 	set(SRCS ${SRCS} ${LIBRARY_NAME}.rc ${LIBRARY_NAME}.def)
 	set(PREPROCESSOR_DEFINITIONS ${PREPROCESSOR_DEFINITIONS};/D_USRDLL;/D__STDC_CONSTANT_MACROS)
-	set(LINK_DIRECTORIES 
-		${PROJECT_ROOT_DIR}/wxGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName))
-	set(DEMO_LIBS wxGuiPluginBase.lib)
 endif(WIN32)
 if(LINUX OR APPLE)
-	set(DEMO_LIBS wxGuiPluginBase)
 	SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 	SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
 	SET(CMAKE_INSTALL_RPATH ".:./../../")
@@ -28,8 +24,8 @@ set(SRCS ${SRCS} ${HEADERS}
 
 add_definitions(${PREPROCESSOR_DEFINITIONS})
 
-include_directories(${INCLUDE_DIRECTORIES} ${BASE_INCLUDE_DIRECTORIES} 
-	${PROJECT_ROOT_DIR}/wxGuiPluginBase)
+include_directories(${INCLUDE_DIRECTORIES} ${BASE_INCLUDE_DIRECTORIES}
+       ${PROJECT_ROOT_DIR}/wxModularCore)
 	
 link_directories(${LINK_DIRECTORIES})
 
@@ -37,6 +33,7 @@ add_library(${LIBRARY_NAME} SHARED ${SRCS})
 
 set(DLL_DIR bin)
 if(APPLE)
+	target_link_options(${LIBRARY_NAME} PRIVATE "-undefined dynamic_lookup")
 	set(BUNDLE_SUBFOLDER 
 		"/$(CONFIGURATION)/${PROJECT_NAME}.app/Contents/PlugIns")
 endif(APPLE)
@@ -57,8 +54,6 @@ endif(LINUX OR APPLE)
 set_target_properties(${LIBRARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TARGET_LOCATION})
 
 target_link_libraries(${LIBRARY_NAME} ${DEMO_LIBS} ${wxWidgets_LIBRARIES})
-
-add_dependencies(${LIBRARY_NAME} wxGuiPluginBase)
 
 target_precompile_headers(${LIBRARY_NAME} PRIVATE ${PROJECT_ROOT_DIR}/include/stdwx.h ${PROJECT_ROOT_DIR}/include/stdwx.cpp)
 

@@ -8,9 +8,7 @@ set(HEADERS
 	wxModularHostApp.h)
 	
 set(INCLUDE_DIRECTORIES ${BASE_INCLUDE_DIRECTORIES}
-	${PROJECT_ROOT_DIR}/wxModularCore
-	${PROJECT_ROOT_DIR}/wxNonGuiPluginBase
-	${PROJECT_ROOT_DIR}/wxGuiPluginBase)
+	${PROJECT_ROOT_DIR}/wxModularCore)
 
 if(WIN32)
 	set(SRCS ${SRCS} wxModularHost.rc)
@@ -18,19 +16,12 @@ if(WIN32)
 		/D_USRDLL;
 		/DwxUSE_NO_MANIFEST=1;
 		/D__STDC_CONSTANT_MACROS)
-	set(LINK_DIRECTORIES 
-		${PROJECT_ROOT_DIR}/wxNonGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName)
-		${PROJECT_ROOT_DIR}/wxGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName)
-		${PROJECT_ROOT_DIR}/wxModularCore/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName))
-	set(DEMO_LIBS wxModularCore.lib wxNonGuiPluginBase.lib wxGuiPluginBase.lib)
+	set(LINK_DIRECTORIES ${PROJECT_ROOT_DIR}/wxModularCore/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName))
+	set(DEMO_LIBS wxModularCore.lib)
 endif(WIN32)
 if(LINUX OR APPLE)
-	set(LINK_DIRECTORIES 
-		${PROJECT_ROOT_DIR}/wxNonGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX}
-		${PROJECT_ROOT_DIR}/wxGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX}
-		${PROJECT_ROOT_DIR}/wxModularCore/${OS_BASE_NAME}${LIB_SUFFIX})
-	set(DEMO_LIBS_SHARED wxNonGuiPluginBase wxGuiPluginBase)
-	set(DEMO_LIBS wxModularCore ${DEMO_LIBS_SHARED})
+	set(LINK_DIRECTORIES ${PROJECT_ROOT_DIR}/wxModularCore/${OS_BASE_NAME}${LIB_SUFFIX})
+	set(DEMO_LIBS "$<LINK_LIBRARY:WHOLE_ARCHIVE,wxModularCore>" ${DEMO_LIBS_SHARED})
 endif(LINUX OR APPLE)
 
 set(LIBS ${DEMO_LIBS} ${wxWidgets_LIBRARIES})
@@ -51,6 +42,7 @@ if(APPLE)
 endif(APPLE)
 if(LINUX)
 	set(EXECUTABLE_TYPE "")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
 endif(LINUX)
 
 set(SRCS ${SRCS} ${HEADERS} 
