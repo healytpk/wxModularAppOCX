@@ -48,5 +48,5 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: artifacts_wxMSW_x86_32_MSBuild
+        name: artifacts_wxMSW_x86_64_MSBuild
         path: build/bin/Debug/
