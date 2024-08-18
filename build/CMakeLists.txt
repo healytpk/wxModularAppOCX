@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.24.0)
+
+cmake_policy(SET CMP0026 OLD)
 
 include(PCHSupport.cmake)
 
@@ -41,7 +43,7 @@ set(wxWidgets_USE_LIBS base core adv aui net gl xml propgrid html)
 # Here we specify that we need DLL version of wxWidgets libs and dynamic CRT
 # This is a MUST for applications with plugins. Both app and DLL plugin MUST
 # use the same instance of wxWidgets and the same event loop.
-set(BUILD_SHARED_LIBS 1)
+set(BUILD_SHARED_LIBS ON)
 
 # Find wxWidgets library on current PC
 # You should have %WXWIN%  environment variable which should point to the
@@ -111,13 +113,9 @@ add_subdirectory (../wxModularHost
 add_subdirectory (../wxModularCore 
 	../../wxModularCore/${OS_BASE_NAME}${LIB_SUFFIX})	
 
-add_subdirectory (../wxNonGuiPluginBase 
-	../../wxNonGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX})
 add_subdirectory (../SampleNonGuiPlugin 
 	../../SampleNonGuiPlugin/${OS_BASE_NAME}${LIB_SUFFIX})
-	
-add_subdirectory (../wxGuiPluginBase 
-	../../wxGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX})
+
 add_subdirectory (../SampleGuiPlugin1 
 	../../SampleGuiPlugin1/${OS_BASE_NAME}${LIB_SUFFIX})
 add_subdirectory (../SampleGuiPlugin2 

@@ -9,12 +9,8 @@ set(LIBRARY_NAME SampleNonGuiPlugin)
 if(WIN32)
 	set(SRCS ${SRCS} ${LIBRARY_NAME}.def)
 	set(PREPROCESSOR_DEFINITIONS ${PREPROCESSOR_DEFINITIONS};/D_USRDLL;/D__STDC_CONSTANT_MACROS)
-	set(LINK_DIRECTORIES 
-		${PROJECT_ROOT_DIR}/wxNonGuiPluginBase/${OS_BASE_NAME}${LIB_SUFFIX}/$(ConfigurationName))
-	set(DEMO_LIBS wxNonGuiPluginBase.lib)
 endif(WIN32)
 if(LINUX OR APPLE)
-	set(DEMO_LIBS wxNonGuiPluginBase)
 	SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 	SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 	if(LINUX) 
@@ -31,7 +27,7 @@ set(SRCS ${SRCS} ${HEADERS}
 add_definitions(${PREPROCESSOR_DEFINITIONS})
 
 include_directories(${INCLUDE_DIRECTORIES} ${BASE_INCLUDE_DIRECTORIES} 
-	${PROJECT_ROOT_DIR}/wxNonGuiPluginBase)
+	${PROJECT_ROOT_DIR}/wxModularCore)
 	
 link_directories(${LINK_DIRECTORIES})
 
@@ -59,8 +55,6 @@ endif(LINUX OR APPLE)
 set_target_properties(${LIBRARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TARGET_LOCATION})
 
 target_link_libraries(${LIBRARY_NAME} ${DEMO_LIBS} ${wxWidgets_LIBRARIES})
-
-add_dependencies(${LIBRARY_NAME} wxNonGuiPluginBase)
 
 target_precompile_headers(${LIBRARY_NAME} PRIVATE ${PROJECT_ROOT_DIR}/include/stdwx.h ${PROJECT_ROOT_DIR}/include/stdwx.cpp)
 
