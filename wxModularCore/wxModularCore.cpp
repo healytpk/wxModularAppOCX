@@ -37,7 +37,6 @@ wxString wxModularCore::GetPluginsPath(bool forceProgramPath) const
 		path = wxPathOnly(wxStandardPaths::Get().GetExecutablePath());
 	wxFileName fn;
 	fn.AssignDir(path);
-	fn.AppendDir(wxT("plugins"));
 	return fn.GetFullPath();
 #endif
 }
