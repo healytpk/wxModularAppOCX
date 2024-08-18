@@ -51,7 +51,7 @@ jobs:
         mkdir -p bin
         mkdir -p bin/Debug
         cd Mac
-        make -j$(getconf _NPROCESSORS_ONLN)
+        make VERBOSE=1 -j$(getconf _NPROCESSORS_ONLN)
         cd ../..
         cp wxWidgets-3.2.5/buildOSX/lib/*.dylib build/bin/wxModularHost.app/Contents
 
