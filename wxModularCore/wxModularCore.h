@@ -112,13 +112,10 @@ protected:
 		typename CreatePluginFunctionType> 
 	bool LoadPlugins(const wxString & pluginsDirectory, 
 		PluginListType & list,
-		PluginToDllDictionaryType & pluginDictionary,
-		const wxString & subFolder)
+		PluginToDllDictionaryType & pluginDictionary)
 	{
 		wxFileName fn;
 		fn.AssignDir(pluginsDirectory);
-		wxLogDebug(wxT("%s"), fn.GetFullPath().data());
-		fn.AppendDir(subFolder);
 		wxLogDebug(wxT("%s"), fn.GetFullPath().data());
 		if (!fn.DirExists())
 			return false;
@@ -166,10 +163,17 @@ protected:
 						}
 					}
 					// ==================================================
-					PluginType * plugin = pfnCreatePlugin();
-					RegisterPlugin(plugin, list);
-					m_DllList.Append(dll);
-					pluginDictionary[plugin] = dll;
+					wxPluginBase *const plugin_base = pfnCreatePlugin();
+					if ( plugin_base )
+					{
+						PluginType *const plugin = dynamic_cast<PluginType*>(plugin_base);
+						if ( plugin )
+						{
+							RegisterPlugin(plugin, list);
+							m_DllList.Append(dll);
+							pluginDictionary[plugin] = dll;
+						}
+					}
 				}
 				else
 				{

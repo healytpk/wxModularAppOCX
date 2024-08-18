@@ -165,7 +165,7 @@ extern "C" {
 		// instead for 'DllGetClassObject' to find an ActiveX control
 
 		auto const pfnDllGetClassObject =
-			(HRESULT(__stdcall*)(REFCLSID,REFIID,void**)) dll->GetSymbol("DllGetClassObject");
+			(HRESULT(__stdcall*)(REFCLSID,REFIID,void**)) dll->RawGetSymbol("DllGetClassObject");
 
 		if ( nullptr == pfnDllGetClassObject ) return nullptr;
 

@@ -19,15 +19,13 @@ bool SampleModularCore::LoadAllPlugins(bool forceProgramPath)
 		wxNonGuiPluginToDllDictionary,
 		CreatePlugin_function>(pluginsRootDir,
 		m_NonGuiPlugins, 
-		m_MapNonGuiPluginsDll,
-		wxT("nongui"));
+		m_MapNonGuiPluginsDll);
 	result &= LoadPlugins<wxGuiPluginBase,
 		wxGuiPluginBaseList,
 		wxGuiPluginToDllDictionary,
-		CreateGuiPlugin_function>(pluginsRootDir,
+		CreatePlugin_function>(pluginsRootDir,
 		m_GuiPlugins, 
-		m_MapGuiPluginsDll,
-		wxT("gui"));
+		m_MapGuiPluginsDll);
 	// You can implement other logic which takes in account
 	// the result of LoadPlugins() calls
 	for(wxGuiPluginBaseList::Node * node = m_GuiPlugins.GetFirst(); 
@@ -50,7 +48,7 @@ bool SampleModularCore::UnloadAllPlugins()
 		UnloadPlugins<wxGuiPluginBase,
 			wxGuiPluginBaseList,
 			wxGuiPluginToDllDictionary,
-			DeleteGuiPlugin_function>(m_GuiPlugins, 
+			DeletePlugin_function>(m_GuiPlugins, 
 			m_MapGuiPluginsDll);
 }
 
