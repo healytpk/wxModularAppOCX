@@ -1,16 +1,16 @@
 #pragma once
 
 #include <cstddef>        // size_t
+#include <memory>         // unique_ptr
 #include <regex>          // regex, regex_match
 #include <wx/dynlib.h>    // wxDynamicLibrary
-#include "wxPluginBase.h" // wxPluginBase
 
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
 
 class wxModularCoreSettings;
 
-template< class PluginType, bool is_gui_plugin = PluginType::is_gui_plugin >
+template<class PluginType>
 struct Process_ActiveX_Plugin {
 	static PluginType *Do(wxDynamicLibrary*)
 	{
@@ -140,63 +140,45 @@ protected:
 			}
 		}
 
+		auto const yes = [this,&list,&pluginDictionary]( std::unique_ptr<wxDynamicLibrary> &pL, PluginType *const pP )
+			{
+					this->RegisterPlugin(pP, list);
+					this->m_DllList.Append( pL.get() );
+					auto const p = pL.release();
+					pluginDictionary[pP] = p;
+			};
+
 		for(size_t i = 0; i < pluginPaths.GetCount(); ++i)
 		{
+			PluginType *plugin = nullptr;
+
 			wxString fileName = pluginPaths[i];
-			wxDynamicLibrary * dll = new wxDynamicLibrary(fileName);
-			if (dll->IsLoaded())
+			std::unique_ptr<wxDynamicLibrary> dll( new wxDynamicLibrary(fileName) );
+			if ( !dll || !dll->IsLoaded() ) continue;
+
+			auto const pfnCreatePlugin = (CreatePluginFunctionType)dll->RawGetSymbol( wxT("CreatePlugin") );
+
+			if ( pfnCreatePlugin )
 			{
-				auto const pfnCreatePlugin = (CreatePluginFunctionType)dll->RawGetSymbol( wxT("CreatePlugin") );
-
-				if (pfnCreatePlugin)
+				// ==================================================
+				//   The next 9 lines check that the plugin's
+				//   wxWidgets library is the same as the wxWidgets
+				//   library used by the main program.
+				auto const pfnGetAddrUninit = (void*(*)(void))dll->RawGetSymbol( wxT("Get_Address_Of_wxUninitialze") );
+				if (pfnGetAddrUninit)
 				{
-					// ==================================================
-					//   The next 9 lines check that the plugin's
-					//   wxWidgets library is the same as the wxWidgets
-					//   library used by the main program.
-					auto const pfnGetAddrUninit = (void*(*)(void))dll->RawGetSymbol( wxT("Get_Address_Of_wxUninitialze") );
-					if (pfnGetAddrUninit)
-					{
-						if ( (void*)&wxUninitialize != pfnGetAddrUninit() )
-						{
-							wxDELETE(dll);
-							continue;
-						}
-					}
-					// ==================================================
-					wxPluginBase *const plugin_base = pfnCreatePlugin();
-					if ( plugin_base )
-					{
-						PluginType *const plugin = dynamic_cast<PluginType*>(plugin_base);
-						if ( plugin )
-						{
-							RegisterPlugin(plugin, list);
-							m_DllList.Append(dll);
-							pluginDictionary[plugin] = dll;
-							continue;
-						}
-						else
-						{
-							auto const pfnDelete = (void(*)(wxPluginBase*))dll->RawGetSymbol( wxT("DeletePlugin") );
-							if ( pfnDelete ) pfnDelete( plugin_base );
-						}
-					}
+					if ( (void*)&wxUninitialize != pfnGetAddrUninit() ) continue;
 				}
-				else
-				{
-					PluginType *const plugin = Process_ActiveX_Plugin<PluginType>::Do(dll);
-					if ( plugin )
-					{
-						RegisterPlugin(plugin, list);
-						m_DllList.Append(dll);
-						pluginDictionary[plugin] = dll;
-						continue;
-					}
-				}
-
-				wxDELETE(dll);
+				// ==================================================
+				if ( !(plugin = pfnCreatePlugin()) ) continue;  // deliberate assignment
+				yes(dll, plugin);
+			}
+			else if ( plugin = Process_ActiveX_Plugin<PluginType>::Do( dll.get() ) )  // deliberate assignment
+			{
+				yes(dll, plugin);
 			}
 		}
+
 		return true;
 	}
 

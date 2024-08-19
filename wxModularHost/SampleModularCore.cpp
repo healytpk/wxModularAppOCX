@@ -2,7 +2,6 @@
 #include "SampleModularCore.h"
 #include <wx/listimpl.cpp>
 
-WX_DEFINE_LIST(wxNonGuiPluginBaseList);
 WX_DEFINE_LIST(wxGuiPluginBaseList);
 
 SampleModularCore::~SampleModularCore()
@@ -14,12 +13,6 @@ bool SampleModularCore::LoadAllPlugins(bool forceProgramPath)
 {
 	wxString pluginsRootDir = GetPluginsPath(forceProgramPath);
 	bool result = true;
-	result &= LoadPlugins<wxNonGuiPluginBase,
-		wxNonGuiPluginBaseList,
-		wxNonGuiPluginToDllDictionary,
-		CreatePlugin_function>(pluginsRootDir,
-		m_NonGuiPlugins, 
-		m_MapNonGuiPluginsDll);
 	result &= LoadPlugins<wxGuiPluginBase,
 		wxGuiPluginBaseList,
 		wxGuiPluginToDllDictionary,
@@ -40,21 +33,11 @@ bool SampleModularCore::LoadAllPlugins(bool forceProgramPath)
 bool SampleModularCore::UnloadAllPlugins()
 {
 	return 
-		UnloadPlugins<wxNonGuiPluginBase,
-			wxNonGuiPluginBaseList,
-			wxNonGuiPluginToDllDictionary,
-			DeletePlugin_function>(m_NonGuiPlugins, 
-			m_MapNonGuiPluginsDll) &&
 		UnloadPlugins<wxGuiPluginBase,
 			wxGuiPluginBaseList,
 			wxGuiPluginToDllDictionary,
 			DeletePlugin_function>(m_GuiPlugins, 
 			m_MapGuiPluginsDll);
-}
-
-const wxNonGuiPluginBaseList & SampleModularCore::GetNonGuiPlugins() const
-{
-	return m_NonGuiPlugins;
 }
 
 const wxGuiPluginBaseList & SampleModularCore::GetGuiPlugins() const

@@ -113,9 +113,6 @@ add_subdirectory (../wxModularHost
 add_subdirectory (../wxModularCore 
 	../../wxModularCore/${OS_BASE_NAME}${LIB_SUFFIX})	
 
-add_subdirectory (../SampleNonGuiPlugin 
-	../../SampleNonGuiPlugin/${OS_BASE_NAME}${LIB_SUFFIX})
-
 add_subdirectory (../SampleGuiPlugin1 
 	../../SampleGuiPlugin1/${OS_BASE_NAME}${LIB_SUFFIX})
 add_subdirectory (../SampleGuiPlugin2 

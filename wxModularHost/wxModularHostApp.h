@@ -55,8 +55,6 @@ public:
     /// Initialises the application
     virtual bool OnInit();
 
-	void TestNonGuiPlugins();
-
     /// Called on exit
     virtual int OnExit();
 
@@ -72,7 +70,7 @@ public:
 ////@end wxModularHostApp member function declarations
 
 ////@begin wxModularHostApp member variables
-	SampleModularCore * m_PluginManager;
+	SampleModularCore * m_PluginManager = nullptr;
 ////@end wxModularHostApp member variables
 };
 

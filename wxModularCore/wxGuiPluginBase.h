@@ -1,13 +1,12 @@
 #pragma once
 
+#include <wx/object.h>      // wxObject
 #include "Declarations.h"
-#include "wxPluginBase.h"
 
-class DEMO_API wxGuiPluginBase : public wxPluginBase
+class DEMO_API wxGuiPluginBase : public wxObject
 {
 	DECLARE_ABSTRACT_CLASS(wxGuiPluginBase)
 public:
-	static constexpr bool is_gui_plugin = true;
 	wxGuiPluginBase(wxEvtHandler * handler);
 	virtual ~wxGuiPluginBase();
 	
@@ -22,3 +21,6 @@ protected:
 };
 
 DECLARE_EXPORTED_EVENT_TYPE(DEMO_API, wxEVT_GUI_PLUGIN_INTEROP, wxEVT_USER_FIRST + 100)
+
+typedef wxGuiPluginBase *(*CreatePlugin_function)(void);
+typedef void (*DeletePlugin_function)(wxGuiPluginBase*);

@@ -1,14 +1,14 @@
 #include "stdwx.h"
 #include <wx/init.h>             // wxUninitialize
-#include <wxPluginBase.h>
+#include <wxGuiPluginBase.h>
 #include "SampleGuiPlugin1.h"
 
-PLUGIN_EXPORTED_API wxPluginBase * CreatePlugin()
+PLUGIN_EXPORTED_API wxGuiPluginBase * CreatePlugin()
 {
 	return new SampleGuiPlugin1;
 }
 
-PLUGIN_EXPORTED_API void DeletePlugin(wxPluginBase * plugin)
+PLUGIN_EXPORTED_API void DeletePlugin(wxGuiPluginBase * plugin)
 {
 	wxDELETE(plugin);
 }

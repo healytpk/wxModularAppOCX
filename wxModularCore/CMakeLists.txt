@@ -2,17 +2,14 @@ set (SRCS
 	wxModularCore.cpp
 	wxModularCoreSettings.cpp
 	wxGuiPluginBase.cpp
-	wxGuiPluginWindowBase.cpp
-	wxNonGuiPluginBase.cpp)
+	wxGuiPluginWindowBase.cpp)
 
 set (HEADERS
 	wxModularCore.h
 	wxModularCoreSettings.h
 	Declarations.h
-	wxPluginBase.h
 	wxGuiPluginBase.h
 	wxGuiPluginWindowBase.h
-	wxNonGuiPluginBase.h
 	Auto.h)
 	
 set(LIBRARY_NAME wxModularCore)
