@@ -4,21 +4,15 @@
 #include <memory>         // unique_ptr
 #include <regex>          // regex, regex_match
 #include <wx/dynlib.h>    // wxDynamicLibrary
+#include "wxGuiPluginBase.h"
 
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
 
 class wxModularCoreSettings;
 
-template<class PluginType>
 struct Process_ActiveX_Plugin {
-	static PluginType *Do(wxDynamicLibrary*)
-	{
-		// ActiveX controls are not non-GUI plugins.
-		// See template specialisation lower down in
-		// this file for GUI plugins.
-		return nullptr;
-	}
+	static wxGuiPluginBase *Do(wxDynamicLibrary*);
 };
 
 class wxModularCore
@@ -40,21 +34,19 @@ protected:
 	wxModularCoreSettings * m_Settings;
 	wxEvtHandler * m_Handler;
 
-	template<typename PluginType,
-		typename PluginListType>
-		bool RegisterPlugin(PluginType * plugin, 
+	template<typename PluginListType>
+		bool RegisterPlugin(wxGuiPluginBase * plugin, 
 		PluginListType & list)
 	{
 		list.Append(plugin);
 		return true;
 	}
 
-	template<typename PluginType, 
-		typename PluginListType,
+	template<typename PluginListType,
 		typename PluginToDllDictionaryType, 
 		typename DeletePluginFunctionType> 
 		bool UnRegisterPlugin(
-			PluginType * plugin, 
+			wxGuiPluginBase * plugin, 
 			PluginListType & container, 
 			PluginToDllDictionaryType & pluginMap)
 	{
@@ -86,19 +78,18 @@ protected:
 		return true;
 	}
 
-	template<typename PluginType, 
-		typename PluginListType,
+	template<typename PluginListType,
 		typename PluginToDllDictionaryType, 
 		typename DeletePluginFunctionType> 
 	bool UnloadPlugins(PluginListType & list, 
 		PluginToDllDictionaryType & pluginDictoonary)
 	{
 		bool result = true;
-		PluginType * plugin = NULL;
+		wxGuiPluginBase * plugin = NULL;
 		while (list.GetFirst() && (plugin =  
 			list.GetFirst()->GetData()))
 		{
-			result &= UnRegisterPlugin<PluginType, 
+			result &= UnRegisterPlugin<
 				PluginListType,
 				PluginToDllDictionaryType, 
 				DeletePluginFunctionType>(plugin, 
@@ -107,8 +98,7 @@ protected:
 		return result;
 	}
 
-	template <typename PluginType, 
-		typename PluginListType,
+	template <typename PluginListType,
 		typename PluginToDllDictionaryType, 
 		typename CreatePluginFunctionType> 
 	bool LoadPlugins(const wxString & pluginsDirectory, 
@@ -140,7 +130,7 @@ protected:
 			}
 		}
 
-		auto const yes = [this,&list,&pluginDictionary]( std::unique_ptr<wxDynamicLibrary> &pL, PluginType *const pP )
+		auto const yes = [this,&list,&pluginDictionary]( std::unique_ptr<wxDynamicLibrary> &pL, wxGuiPluginBase *const pP )
 			{
 					this->RegisterPlugin(pP, list);
 					this->m_DllList.Append( pL.get() );
@@ -150,7 +140,7 @@ protected:
 
 		for(size_t i = 0; i < pluginPaths.GetCount(); ++i)
 		{
-			PluginType *plugin = nullptr;
+			wxGuiPluginBase *plugin = nullptr;
 
 			wxString fileName = pluginPaths[i];
 			std::unique_ptr<wxDynamicLibrary> dll( new wxDynamicLibrary(fileName) );
@@ -173,7 +163,7 @@ protected:
 				if ( !(plugin = pfnCreatePlugin()) ) continue;  // deliberate assignment
 				yes(dll, plugin);
 			}
-			else if ( plugin = Process_ActiveX_Plugin<PluginType>::Do( dll.get() ) )  // deliberate assignment
+			else if ( plugin = Process_ActiveX_Plugin::Do( dll.get() ) )  // deliberate assignment
 			{
 				yes(dll, plugin);
 			}
@@ -184,7 +174,17 @@ protected:
 
 };
 
-#ifdef __WXMSW__
+#ifndef __WXMSW__
+
+inline wxGuiPluginBase *Process_ActiveX_Plugin::Do(wxDynamicLibrary*)
+{
+    // ActiveX controls are not non-GUI plugins.
+    // See template specialisation lower down in
+    // this file for GUI plugins.
+    return nullptr;
+}
+
+#else
 
 #include <cassert>        // assert
 #include <new>            // new(nothrow)
@@ -197,16 +197,11 @@ extern "C" {
 	void *OCX_Process_ActiveX_Plugin(wxDynamicLibrary *dll);          // defined in wxModularCoreOCX.cpp
 }
 
-template<class PluginType>
-class wxGuiPluginOCX : public PluginType {
+class wxGuiPluginOCX : public wxGuiPluginBase {
 protected:
 	void *const p_IOleObject;
 
 public:
-	using PluginType::GetName;
-	using PluginType::GetId;
-	using PluginType::CreatePanel;
-
 	virtual wxString GetName(void) const override { return "Name OCX Plugin 0"; }
 	virtual wxString GetId  (void) const override { return "ID   OCX Plugin 0"; }
 
@@ -217,7 +212,7 @@ public:
 		return OCX_CreatePanel(this->p_IOleObject, parent);
 	}
 
-	wxGuiPluginOCX(void *const arg_p_IOleObject) : PluginType( nullptr /* event handler */ ), p_IOleObject(arg_p_IOleObject)
+	wxGuiPluginOCX(void *const arg_p_IOleObject) : wxGuiPluginBase( nullptr /* event handler */ ), p_IOleObject(arg_p_IOleObject)
 	{
 		assert( nullptr != arg_p_IOleObject );
 	}
@@ -229,23 +224,20 @@ public:
 	}
 };
 
-template<class PluginType>
-struct Process_ActiveX_Plugin< PluginType, true > {
-	static PluginType *Do(wxDynamicLibrary *const dll)
-	{
-		void *const pole = OCX_Process_ActiveX_Plugin(dll);
+inline wxGuiPluginBase *Process_ActiveX_Plugin::Do(wxDynamicLibrary*)
+{
+    void *const pole = OCX_Process_ActiveX_Plugin(dll);
 
-		if ( nullptr == pole ) return nullptr;
+    if ( nullptr == pole ) return nullptr;
 
-		auto *const plugin = new(std::nothrow) wxGuiPluginOCX<PluginType>(pole);
-		if ( nullptr == plugin )
-		{
-			OCX_Release_IOleObject(pole);
-			return nullptr;
-		}
+    auto *const plugin = new(std::nothrow) wxGuiPluginOCX(pole);
+    if ( nullptr == plugin )
+    {
+        OCX_Release_IOleObject(pole);
+        return nullptr;
+    }
 
-		return plugin;
-	}
-};
+    return plugin;
+}
 
 #endif

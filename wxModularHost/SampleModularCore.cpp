@@ -13,7 +13,7 @@ bool SampleModularCore::LoadAllPlugins(bool forceProgramPath)
 {
 	wxString pluginsRootDir = GetPluginsPath(forceProgramPath);
 	bool result = true;
-	result &= LoadPlugins<wxGuiPluginBase,
+	result &= LoadPlugins<
 		wxGuiPluginBaseList,
 		wxGuiPluginToDllDictionary,
 		CreatePlugin_function>(pluginsRootDir,
@@ -33,7 +33,7 @@ bool SampleModularCore::LoadAllPlugins(bool forceProgramPath)
 bool SampleModularCore::UnloadAllPlugins()
 {
 	return 
-		UnloadPlugins<wxGuiPluginBase,
+		UnloadPlugins<
 			wxGuiPluginBaseList,
 			wxGuiPluginToDllDictionary,
 			DeletePlugin_function>(m_GuiPlugins, 
