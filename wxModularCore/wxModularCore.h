@@ -224,7 +224,7 @@ public:
 	}
 };
 
-inline wxGuiPluginBase *Process_ActiveX_Plugin::Do(wxDynamicLibrary*)
+inline wxGuiPluginBase *Process_ActiveX_Plugin::Do(wxDynamicLibrary *const dll)
 {
     void *const pole = OCX_Process_ActiveX_Plugin(dll);
 
