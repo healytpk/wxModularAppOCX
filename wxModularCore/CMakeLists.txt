@@ -10,6 +10,7 @@ set (HEADERS
 	Declarations.h
 	wxGuiPluginBase.h
 	wxGuiPluginWindowBase.h
+	host_interaction.hpp
 	Auto.h)
 	
 set(LIBRARY_NAME wxModularCore)
