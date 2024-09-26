@@ -30,13 +30,9 @@ include_directories(${INCLUDE_DIRECTORIES} ${BASE_INCLUDE_DIRECTORIES}
        ${PROJECT_ROOT_DIR}/wxModularCore)
 
 add_library(${LIBRARY_NAME} SHARED ${SRCS})
-if(WIN32)
-	add_dependencies(${LIBRARY_NAME} wxModularHost)
-endif(WIN32)
 
 set(DLL_DIR bin)
 if(APPLE)
-	target_link_options(${LIBRARY_NAME} PRIVATE -undefined dynamic_lookup)
 	set(BUNDLE_SUBFOLDER 
 		"/$(CONFIGURATION)/${PROJECT_NAME}.app/Contents")
 endif(APPLE)
