@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-14
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install wxWidgets
       run: |
         curl -L http://www.libtiff.org/downloads/tiff-4.6.0t.tar.gz --output tiff-4.6.0t.tar.gz
@@ -54,7 +54,7 @@ jobs:
         cd ../..
         cp wxWidgets-3.2.5/buildOSX/lib/*.dylib build/bin/wxModularHost.app/Contents
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: artifacts_wxOSX_arm64
         path: build/bin/wxModularHost.app/Contents

@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install GNU 13 compiler suite, GTK3, wxWidgets 3.2
       run: |
         sudo apt update
@@ -35,7 +35,7 @@ jobs:
         cd build/LinuxRelease && make && cd ../..
         cp --preserve=links /usr/lib/x86_64-linux-gnu/libwx*.so* build/bin/Release/
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: artifacts_wxGTK_Linux_x86_64
         path: build/bin/Release
