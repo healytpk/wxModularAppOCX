@@ -4,6 +4,10 @@ cmake_policy(SET CMP0026 OLD)
 
 include(PCHSupport.cmake)
 
+if(LINUX)
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+endif(LINUX)
+
 # We will generate both Debug and Release project files at the same time
 # for Windows and OS X
 if(WIN32 OR APPLE)
@@ -100,11 +104,12 @@ set(BASE_INCLUDE_DIRECTORIES ${PROJECT_ROOT_DIR}/include)
 # include directories for all projects.
 include_directories(${wxWidgets_INCLUDE_DIRS})
 
-if(WIN32 OR LINUX)
-	set(CMAKE_CXX_FLAGS_DEBUG 
-		"${CMAKE_CXX_FLAGS_DEBUG}
-		/D__WXDEBUG__=1" )
-endif(WIN32 OR LINUX)
+if(WIN32)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D__WXDEBUG__=1" )
+endif(WIN32)
+if(APPLE OR LINUX)
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D__WXDEBUG__=1" )
+endif(APPLE OR LINUX)
 
 # Now we can include all our subprojects. 
 # CMake will generate project files for them
