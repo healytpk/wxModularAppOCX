@@ -46,7 +46,7 @@ jobs:
         cd build\Win && msbuild wxModularHost.sln && cd ..\..
         copy wxWidgets_MSW32\lib\vc14x_dll\*.dll build\bin\Debug
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: artifacts_wxMSW_x86_32_MSBuild
         path: build/bin/Debug/
