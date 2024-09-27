@@ -212,7 +212,7 @@ public:
 		return OCX_CreatePanel(this->p_IOleObject, parent);
 	}
 
-	wxGuiPluginOCX(void *const arg_p_IOleObject) : wxGuiPluginBase( nullptr /* event handler */ ), p_IOleObject(arg_p_IOleObject)
+	wxGuiPluginOCX(void *const arg_p_IOleObject) : p_IOleObject(arg_p_IOleObject)
 	{
 		assert( nullptr != arg_p_IOleObject );
 	}
