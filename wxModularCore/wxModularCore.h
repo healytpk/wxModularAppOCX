@@ -202,6 +202,10 @@ protected:
 	void *const p_IOleObject;
 
 public:
+
+	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
+	virtual void SetEventHandler(wxEvtHandler*) override {}
+
 	virtual wxString GetName(void) const override { return "Name OCX Plugin 0"; }
 	virtual wxString GetId  (void) const override { return "ID   OCX Plugin 0"; }
 
