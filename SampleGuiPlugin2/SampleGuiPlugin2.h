@@ -2,15 +2,16 @@
 
 #include <wxGuiPluginBase.h>
 
-class SampleGuiPlugin2 : public wxGuiPluginBase
-{
+class SampleGuiPlugin2 : public wxGuiPluginBase {
 	DECLARE_DYNAMIC_CLASS(SampleGuiPlugin2)
+protected:
+	wxEvtHandler *m_Handler;
 public:
-	SampleGuiPlugin2();
-	SampleGuiPlugin2(wxEvtHandler * handler);
-	virtual ~SampleGuiPlugin2();
-
-	virtual wxString GetName() const;
-	virtual wxString GetId() const;
-	virtual wxWindow * CreatePanel(wxWindow * parent);
+	SampleGuiPlugin2() noexcept = default;
+	SampleGuiPlugin2(wxEvtHandler *handler);
+	virtual wxString GetName() const override;
+	virtual wxString GetId() const override;
+	virtual wxWindow *CreatePanel(wxWindow *parent) override;
+	virtual wxEvtHandler *GetEventHandler() override { return m_Handler; }
+	virtual void SetEventHandler(wxEvtHandler *const handler) override { m_Handler = handler; }
 };
