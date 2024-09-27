@@ -12,96 +12,73 @@
 #ifndef _WXGUIPLUGINWINDOWBASE_H_
 #define _WXGUIPLUGINWINDOWBASE_H_
 
-
-/*!
- * Includes
- */
-
-////@begin includes
-////@end includes
+#include "host_interaction.hpp"
 #include "Declarations.h"
 
-/*!
- * Forward declarations
- */
-
-////@begin forward declarations
-class wxGuiPluginWindowBase;
-////@end forward declarations
 class wxGuiPluginBase;
 
-/*!
- * Control identifiers
- */
-
-////@begin control identifiers
 #define ID_WXGUIPLUGINWINDOWBASE 10000
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_STYLE wxNO_BORDER|wxTAB_TRAVERSAL
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_IDNAME ID_WXGUIPLUGINWINDOWBASE
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_SIZE wxDefaultSize
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_POSITION wxDefaultPosition
-////@end control identifiers
 
-
-/*!
- * wxGuiPluginWindowBase class declaration
- */
-
-class DEMO_API wxGuiPluginWindowBase: public wxPanel
-{    
-    DECLARE_DYNAMIC_CLASS( wxGuiPluginWindowBase )
-    DECLARE_EVENT_TABLE()
-
+class wxGuiPluginWindowBase : public wxPanel {
+protected:
+    wxGuiPluginBase * m_Plugin;
 public:
-    /// Constructors
-    wxGuiPluginWindowBase();
+    wxGuiPluginBase * GetPlugin() const { return m_Plugin ; }
+    void SetPlugin(wxGuiPluginBase * value) { m_Plugin = value ; }
+
+    wxGuiPluginWindowBase()
+    {
+        hostfuncs.wxGuiPluginWindowBase_Constructor_void(*this);
+    }
+
     wxGuiPluginWindowBase(wxGuiPluginBase * plugin, 
         wxWindow* parent, 
         wxWindowID id = ID_WXGUIPLUGINWINDOWBASE, 
         const wxPoint& pos = wxDefaultPosition, 
         const wxSize& size = wxDefaultSize, 
-        long style = wxNO_BORDER|wxTAB_TRAVERSAL);
+        long style = wxNO_BORDER|wxTAB_TRAVERSAL)
+    {
+        hostfuncs.wxGuiPluginWindowBase_Constructor_ManyArguments(*this, plugin, parent, id, pos, size, style);
+    }
 
-    /// Creation
     bool Create(wxGuiPluginBase * plugin, 
         wxWindow* parent, 
         wxWindowID id = ID_WXGUIPLUGINWINDOWBASE, 
         const wxPoint& pos = wxDefaultPosition, 
         const wxSize& size = wxDefaultSize, 
-        long style = wxNO_BORDER|wxTAB_TRAVERSAL);
+        long style = wxNO_BORDER|wxTAB_TRAVERSAL)
+    {
+        return hostfuncs.wxGuiPluginWindowBase_Create(*this, plugin, parent, id, pos, size, style);
+    }
 
-    /// Destructor
-    ~wxGuiPluginWindowBase();
+    void Init()
+    {
+        return hostfuncs.wxGuiPluginWindowBase_Init(*this);
+    }
 
-    /// Initialises member variables
-    void Init();
+    void CreateControls()
+    {
+        return hostfuncs.wxGuiPluginWindowBase_CreateControls(*this);
+    }
 
-    /// Creates the controls and sizers
-    void CreateControls();
+    wxBitmap GetBitmapResource(const wxString& name)
+    {
+        return hostfuncs.wxGuiPluginWindowBase_GetBitmapResource(*this, name);
+    }
 
-////@begin wxGuiPluginWindowBase event handler declarations
+    wxIcon GetIconResource(const wxString& name)
+    {
+        return hostfuncs.wxGuiPluginWindowBase_GetIconResource(*this, name);
+    }
 
-////@end wxGuiPluginWindowBase event handler declarations
-
-////@begin wxGuiPluginWindowBase member function declarations
-
-    wxGuiPluginBase * GetPlugin() const { return m_Plugin ; }
-    void SetPlugin(wxGuiPluginBase * value) { m_Plugin = value ; }
-
-    /// Retrieves bitmap resources
-    wxBitmap GetBitmapResource( const wxString& name );
-
-    /// Retrieves icon resources
-    wxIcon GetIconResource( const wxString& name );
-////@end wxGuiPluginWindowBase member function declarations
-
-    /// Should we show tooltips?
-    static bool ShowToolTips();
-
-////@begin wxGuiPluginWindowBase member variables
-    wxGuiPluginBase * m_Plugin;
-////@end wxGuiPluginWindowBase member variables
+    static bool ShowToolTips()
+    {
+        return hostfuncs.wxGuiPluginWindowBase_ShowToolTips();
+    }
 };
 
 #endif
-    // _WXGUIPLUGINWINDOWBASE_H_

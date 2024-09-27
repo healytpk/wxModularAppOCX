@@ -20,130 +20,53 @@
 #include "wx/wx.h"
 #endif
 
-////@begin includes
-////@end includes
-
 #include "wxGuiPluginWindowBase.h"
 #include "wxGuiPluginBase.h"
 
-////@begin XPM images
-////@end XPM images
+extern "C" {
 
-
-/*
- * wxGuiPluginWindowBase type definition
- */
-
-IMPLEMENT_DYNAMIC_CLASS( wxGuiPluginWindowBase, wxPanel )
-
-
-/*
- * wxGuiPluginWindowBase event table definition
- */
-
-BEGIN_EVENT_TABLE( wxGuiPluginWindowBase, wxPanel )
-
-////@begin wxGuiPluginWindowBase event table entries
-////@end wxGuiPluginWindowBase event table entries
-
-END_EVENT_TABLE()
-
-
-/*
- * wxGuiPluginWindowBase constructors
- */
-
-wxGuiPluginWindowBase::wxGuiPluginWindowBase()
+void ForPlugins_wxGuiPluginWindowBase_Init(wxGuiPluginWindowBase &obj)
 {
-    Init();
+
 }
 
-wxGuiPluginWindowBase::wxGuiPluginWindowBase(wxGuiPluginBase * plugin, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
+void ForPlugins_wxGuiPluginWindowBase_CreateControls(wxGuiPluginWindowBase &obj)
 {
-    Init();
-    Create(plugin, parent, id, pos, size, style);
+
 }
 
-
-/*
- * wxGuiPluginWindowBase creator
- */
-
-bool wxGuiPluginWindowBase::Create(wxGuiPluginBase * plugin, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
+bool ForPlugins_wxGuiPluginWindowBase_Create(wxGuiPluginWindowBase &obj, wxGuiPluginBase * plugin, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
 {
-	m_Plugin = plugin;
-////@begin wxGuiPluginWindowBase creation
-    wxPanel::Create(parent, id, pos, size, style);
-    CreateControls();
-////@end wxGuiPluginWindowBase creation
+    obj.m_Plugin = plugin;
+    obj.wxPanel::Create(parent, id, pos, size, style);
+    ForPlugins_wxGuiPluginWindowBase_CreateControls(obj);
     return true;
 }
 
-
-/*
- * wxGuiPluginWindowBase destructor
- */
-
-wxGuiPluginWindowBase::~wxGuiPluginWindowBase()
+void ForPlugins_wxGuiPluginWindowBase_Constructor_void(wxGuiPluginWindowBase &obj)
 {
-////@begin wxGuiPluginWindowBase destruction
-////@end wxGuiPluginWindowBase destruction
+    ForPlugins_wxGuiPluginWindowBase_Init(obj);
 }
 
-
-/*
- * Member initialisation
- */
-
-void wxGuiPluginWindowBase::Init()
+void ForPlugins_wxGuiPluginWindowBase_Constructor_ManyArguments(wxGuiPluginWindowBase &obj, wxGuiPluginBase * plugin, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
 {
-////@begin wxGuiPluginWindowBase member initialisation
-////@end wxGuiPluginWindowBase member initialisation
+    ForPlugins_wxGuiPluginWindowBase_Init(obj);
+    ForPlugins_wxGuiPluginWindowBase_Create(obj, plugin, parent, id, pos, size, style);
 }
 
-
-/*
- * Control creation for wxGuiPluginWindowBase
- */
-
-void wxGuiPluginWindowBase::CreateControls()
-{    
-////@begin wxGuiPluginWindowBase content construction
-////@end wxGuiPluginWindowBase content construction
-}
-
-
-/*
- * Should we show tooltips?
- */
-
-bool wxGuiPluginWindowBase::ShowToolTips()
+bool ForPlugins_wxGuiPluginWindowBase_ShowToolTips(wxGuiPluginWindowBase &obj)
 {
     return true;
 }
 
-/*
- * Get bitmap resources
- */
-
-wxBitmap wxGuiPluginWindowBase::GetBitmapResource( const wxString& name )
+wxBitmap ForPlugins_wxGuiPluginWindowBase_GetBitmapResource(wxGuiPluginWindowBase &obj, const wxString& /*name*/ )
 {
-    // Bitmap retrieval
-////@begin wxGuiPluginWindowBase bitmap retrieval
-    wxUnusedVar(name);
     return wxNullBitmap;
-////@end wxGuiPluginWindowBase bitmap retrieval
 }
 
-/*
- * Get icon resources
- */
-
-wxIcon wxGuiPluginWindowBase::GetIconResource( const wxString& name )
+wxIcon ForPlugins_wxGuiPluginWindowBase_GetIconResource(wxGuiPluginWindowBase &obj, const wxString& /*name*/ )
 {
-    // Icon retrieval
-////@begin wxGuiPluginWindowBase icon retrieval
-    wxUnusedVar(name);
     return wxNullIcon;
-////@end wxGuiPluginWindowBase icon retrieval
 }
+
+} // extern "C"
