@@ -89,15 +89,13 @@ bool SampleGuiPluginWindow1::ShowToolTips()
     return true;
 }
 
-wxBitmap SampleGuiPluginWindow1::GetBitmapResource( const wxString& name )
+wxBitmap SampleGuiPluginWindow1::GetBitmapResource( const wxString& /*name*/ )
 {
-    wxUnusedVar(name);
     return wxNullBitmap;
 }
 
-wxIcon SampleGuiPluginWindow1::GetIconResource( const wxString& name )
+wxIcon SampleGuiPluginWindow1::GetIconResource( const wxString& /*name*/ )
 {
-    wxUnusedVar(name);
     return wxNullIcon;
 }
 

@@ -4,7 +4,7 @@
 
 IMPLEMENT_DYNAMIC_CLASS(SampleGuiPlugin1, wxObject)
 
-SampleGuiPlugin1::SampleGuiPlugin1(wxEvtHandler * handler) : m_Handler(handler)
+SampleGuiPlugin1::SampleGuiPlugin1(wxEvtHandler *const handler) : m_Handler(handler)
 {
 }
 
@@ -18,7 +18,7 @@ wxString SampleGuiPlugin1::GetId() const
 	return wxT("{4E97DF66-5FBB-4719-AF17-76C1C82D3FE1}");
 }
 
-wxWindow * SampleGuiPlugin1::CreatePanel(wxWindow * parent)
+wxWindow *SampleGuiPlugin1::CreatePanel(wxWindow *const parent)
 {
 	return new SampleGuiPluginWindow1(this, parent);
 }

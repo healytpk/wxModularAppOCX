@@ -28,6 +28,8 @@ class SampleGuiPluginWindow1 : public wxGuiPluginWindowBase {
     DECLARE_DYNAMIC_CLASS( SampleGuiPluginWindow1 )
     DECLARE_EVENT_TABLE()
 
+    wxTextCtrl *m_SamppleTextCtrl;
+
 public:
 
     SampleGuiPluginWindow1();
@@ -48,8 +50,6 @@ public:
     wxIcon GetIconResource( const wxString& name );
 
     static bool ShowToolTips();
-
-    wxTextCtrl* m_SamppleTextCtrl;
 };
 
 #endif
