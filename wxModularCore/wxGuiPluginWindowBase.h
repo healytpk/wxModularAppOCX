@@ -23,7 +23,7 @@ class wxGuiPluginBase;
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_SIZE wxDefaultSize
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_POSITION wxDefaultPosition
 
-extern "C" bool ForPlugins_wxGuiPluginWindowBase_Create(wxGuiPluginWindowBase &obj, wxGuiPluginBase * plugin, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style);
+extern "C" DEMO_API bool ForPlugins_wxGuiPluginWindowBase_Create(wxGuiPluginWindowBase &obj, wxGuiPluginBase * plugin, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style);
 
 class wxGuiPluginWindowBase : public wxPanel {
 protected:
