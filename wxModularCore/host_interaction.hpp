@@ -7,7 +7,7 @@
 class wxGuiPluginBase;
 class wxGuiPluginWindowBase;
 
-struct HostFunctions {
+struct HostAPIv1 {
     // Standalone functions
     wxEventType const& (*GetEventTypeObject)();
 
@@ -26,41 +26,15 @@ struct HostFunctions {
     wxIcon (*wxGuiPluginWindowBase_GetIconResource)(wxGuiPluginWindowBase&, const wxString&);
 };
 
-inline HostFunctions hostfuncs;
+extern HostAPIv1 const *hostfuncs;
 
-inline bool ResolveAllHostFuncs(void)
+inline void const *GetHostAPI(unsigned const version)
 {
     auto const prog = wxDynamicLibrary::GetProgramHandle();
-    if ( !prog ) return false;
-    constexpr void *(*sym)(wxDllType,wxString const &) = &wxDynamicLibrary::RawGetSymbol;
-    hostfuncs.GetEventTypeObject =
-     (wxEventType const& (*)())sym(prog, "ForPlugins_GetEventTypeObject");
-    if ( nullptr == hostfuncs.GetEventTypeObject ) return false;
-    hostfuncs.wxGuiPluginWindowBase_Constructor_void =
-     (void (*)(wxGuiPluginWindowBase&))sym(prog, "ForPlugins_wxGuiPluginWindowBase_Constructor_void");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_Constructor_void ) return false;
-    hostfuncs.wxGuiPluginWindowBase_Constructor_ManyArguments =
-     (void (*)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long))sym(prog, "ForPlugins_wxGuiPluginWindowBase_Constructor_ManyArguments");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_Constructor_ManyArguments ) return false;
-    hostfuncs.wxGuiPluginWindowBase_Create =
-     (bool (*)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long))sym(prog, "ForPlugins_wxGuiPluginWindowBase_Create");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_Create ) return false;
-    hostfuncs.wxGuiPluginWindowBase_Init =
-     (void (*)(wxGuiPluginWindowBase&))sym(prog, "ForPlugins_wxGuiPluginWindowBase_Init");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_Init ) return false;
-    hostfuncs.wxGuiPluginWindowBase_CreateControls =
-     (void (*)(wxGuiPluginWindowBase&))sym(prog, "ForPlugins_wxGuiPluginWindowBase_CreateControls");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_CreateControls ) return false;
-    hostfuncs.wxGuiPluginWindowBase_GetBitmapResource =
-     (wxBitmap (*)(wxGuiPluginWindowBase&, const wxString&))sym(prog, "ForPlugins_wxGuiPluginWindowBase_GetBitmapResource");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_GetBitmapResource ) return false;
-    hostfuncs.wxGuiPluginWindowBase_GetIconResource =
-     (wxIcon (*)(wxGuiPluginWindowBase&, const wxString&))sym(prog, "ForPlugins_wxGuiPluginWindowBase_GetIconResource");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_GetIconResource ) return false;
-    hostfuncs.wxGuiPluginWindowBase_ShowToolTips =
-     (bool (*)())sym(prog, "ForPlugins_wxGuiPluginWindowBase_ShowToolTips");
-    if ( nullptr == hostfuncs.wxGuiPluginWindowBase_ShowToolTips ) return false;
-    return true; // All functions resolved successfully
+    if ( !prog ) return nullptr;
+    auto const pf = (void const *(*)(unsigned))wxDynamicLibrary::RawGetSymbol(prog, "ForPlugins_GetHostAPI");
+    if ( !pf ) return nullptr;
+    return pf(version);
 }
 
 #endif  // INCLUSION_GUARD

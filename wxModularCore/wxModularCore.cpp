@@ -2,6 +2,7 @@
 #include "wxModularCore.h"
 #include "wxModularCoreSettings.h"
 #include <wx/listimpl.cpp>
+#include "host_interaction.hpp"
 
 WX_DEFINE_LIST(wxDynamicLibraryList);
 
@@ -53,6 +54,41 @@ std::regex wxModularCore::GetPluginRegex() const
 	return std::regex("no_known_plugin");
 #endif
 }
+
+// Standalone functions
+extern wxEventType const &ForPlugins_GetEventTypeObject(void);
+// Static member functions
+extern bool ForPlugins_wxGuiPluginWindowBase_ShowToolTips();
+// Constructors
+extern void ForPlugins_wxGuiPluginWindowBase_Constructor_void(wxGuiPluginWindowBase & obj);
+extern void ForPlugins_wxGuiPluginWindowBase_Constructor_ManyArguments(wxGuiPluginWindowBase & obj, wxGuiPluginBase * plugin, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize & size, long style);
+// Non-static member functions
+extern void ForPlugins_wxGuiPluginWindowBase_Init(wxGuiPluginWindowBase & obj);
+extern void ForPlugins_wxGuiPluginWindowBase_CreateControls(wxGuiPluginWindowBase & obj);
+extern bool ForPlugins_wxGuiPluginWindowBase_Create(wxGuiPluginWindowBase & obj, wxGuiPluginBase * plugin, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize & size, long style);
+extern wxBitmap ForPlugins_wxGuiPluginWindowBase_GetBitmapResource(wxGuiPluginWindowBase & obj, const wxString& /*name*/);
+extern wxIcon ForPlugins_wxGuiPluginWindowBase_GetIconResource(wxGuiPluginWindowBase & obj, const wxString& /*name*/);
+
+extern "C" {
+DEMO_API void const *ForPlugins_GetHostAPI(unsigned const version)
+{
+	if ( version < 1u || version > 1u ) return nullptr;
+
+	static HostAPIv1 api1;
+
+	api1.GetEventTypeObject = &ForPlugins_GetEventTypeObject;
+	api1.wxGuiPluginWindowBase_ShowToolTips = &ForPlugins_wxGuiPluginWindowBase_ShowToolTips;
+	api1.wxGuiPluginWindowBase_Constructor_void = &ForPlugins_wxGuiPluginWindowBase_Constructor_void;
+	api1.wxGuiPluginWindowBase_Constructor_ManyArguments = &ForPlugins_wxGuiPluginWindowBase_Constructor_ManyArguments;
+	api1.wxGuiPluginWindowBase_Init = &ForPlugins_wxGuiPluginWindowBase_Init;
+	api1.wxGuiPluginWindowBase_CreateControls = &ForPlugins_wxGuiPluginWindowBase_CreateControls;
+	api1.wxGuiPluginWindowBase_Create = &ForPlugins_wxGuiPluginWindowBase_Create;
+	api1.wxGuiPluginWindowBase_GetBitmapResource = &ForPlugins_wxGuiPluginWindowBase_GetBitmapResource;
+	api1.wxGuiPluginWindowBase_GetIconResource = &ForPlugins_wxGuiPluginWindowBase_GetIconResource;
+
+	return &api1;
+}
+}  // extern "C"
 
 #ifdef __WXMSW__
 

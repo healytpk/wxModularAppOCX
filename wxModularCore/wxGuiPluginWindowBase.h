@@ -23,8 +23,6 @@ class wxGuiPluginBase;
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_SIZE wxDefaultSize
 #define SYMBOL_WXGUIPLUGINWINDOWBASE_POSITION wxDefaultPosition
 
-extern "C" DEMO_API bool ForPlugins_wxGuiPluginWindowBase_Create(wxGuiPluginWindowBase &obj, wxGuiPluginBase * plugin, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style);
-
 class wxGuiPluginWindowBase : public wxPanel {
 protected:
     wxGuiPluginBase * m_Plugin;
@@ -37,7 +35,7 @@ public:
 
     wxGuiPluginWindowBase()
     {
-        hostfuncs.wxGuiPluginWindowBase_Constructor_void(*this);
+        hostfuncs->wxGuiPluginWindowBase_Constructor_void(*this);
     }
 
     wxGuiPluginWindowBase(wxGuiPluginBase * plugin, 
@@ -47,7 +45,7 @@ public:
         const wxSize& size = wxDefaultSize, 
         long style = wxNO_BORDER|wxTAB_TRAVERSAL)
     {
-        hostfuncs.wxGuiPluginWindowBase_Constructor_ManyArguments(*this, plugin, parent, id, pos, size, style);
+        hostfuncs->wxGuiPluginWindowBase_Constructor_ManyArguments(*this, plugin, parent, id, pos, size, style);
     }
 
     bool Create(wxGuiPluginBase * plugin, 
@@ -57,32 +55,32 @@ public:
         const wxSize& size = wxDefaultSize, 
         long style = wxNO_BORDER|wxTAB_TRAVERSAL)
     {
-        return hostfuncs.wxGuiPluginWindowBase_Create(*this, plugin, parent, id, pos, size, style);
+        return hostfuncs->wxGuiPluginWindowBase_Create(*this, plugin, parent, id, pos, size, style);
     }
 
     void Init()
     {
-        return hostfuncs.wxGuiPluginWindowBase_Init(*this);
+        return hostfuncs->wxGuiPluginWindowBase_Init(*this);
     }
 
     void CreateControls()
     {
-        return hostfuncs.wxGuiPluginWindowBase_CreateControls(*this);
+        return hostfuncs->wxGuiPluginWindowBase_CreateControls(*this);
     }
 
     wxBitmap GetBitmapResource(const wxString& name)
     {
-        return hostfuncs.wxGuiPluginWindowBase_GetBitmapResource(*this, name);
+        return hostfuncs->wxGuiPluginWindowBase_GetBitmapResource(*this, name);
     }
 
     wxIcon GetIconResource(const wxString& name)
     {
-        return hostfuncs.wxGuiPluginWindowBase_GetIconResource(*this, name);
+        return hostfuncs->wxGuiPluginWindowBase_GetIconResource(*this, name);
     }
 
     static bool ShowToolTips()
     {
-        return hostfuncs.wxGuiPluginWindowBase_ShowToolTips();
+        return hostfuncs->wxGuiPluginWindowBase_ShowToolTips();
     }
 };
 

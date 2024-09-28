@@ -4,9 +4,12 @@
 #include "SampleGuiPlugin2.h"
 #include "host_interaction.hpp"
 
+HostAPIv1 const *hostfuncs = nullptr;
+
 PLUGIN_EXPORTED_API wxGuiPluginBase *CreatePlugin()
 {
-    if ( false == ResolveAllHostFuncs() ) return nullptr;
+    hostfuncs = static_cast<HostAPIv1 const*>(  GetHostAPI(1u)  );
+    if ( nullptr == hostfuncs ) return nullptr;
     return new SampleGuiPlugin2;
 }
 
