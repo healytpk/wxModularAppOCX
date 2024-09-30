@@ -3,22 +3,25 @@
 
 #include <wx/dynlib.h>                          // wxDynamicLibrary
 #include <wx/window.h>                          // wxWindow
+#include "wxGuiPluginBase.h"                    // wxEVT_GUI_PLUGIN_INTEROP
 
 class wxGuiPluginBase;
 class wxGuiPluginWindowBase;
 
 struct HostAPIv1 {
-    // Standalone functions
-    wxEventType const& (*GetEventTypeObject)();
+    // Global objects
+    wxEventType const &wxEVT_GUI_PLUGIN_INTEROP;
 
-    // Static member functions
+    // Standalone functions
+
+    // Class static member functions
     bool (*wxGuiPluginWindowBase_ShowToolTips)();
 
-    // Constructors
+    // Class constructors
     void (*wxGuiPluginWindowBase_Constructor_void)(wxGuiPluginWindowBase&);
     void (*wxGuiPluginWindowBase_Constructor_ManyArguments)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long);
 
-    // Member functions
+    // Class member functions
     bool (*wxGuiPluginWindowBase_Create)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long);
     void (*wxGuiPluginWindowBase_Init)(wxGuiPluginWindowBase&);
     void (*wxGuiPluginWindowBase_CreateControls)(wxGuiPluginWindowBase&);
@@ -28,13 +31,13 @@ struct HostAPIv1 {
 
 extern HostAPIv1 const *hostapi;
 
-inline void const *GetHostAPI(unsigned const version)
+inline void const *GetHostAPI( unsigned const version, void (*const addr_of_wxuninit)(void) )
 {
     auto const prog = wxDynamicLibrary::GetProgramHandle();
     if ( !prog ) return nullptr;
-    auto const pf = (void const *(*)(unsigned))wxDynamicLibrary::RawGetSymbol(prog, "ForPlugins_GetHostAPI");
+    auto const pf = (void const *(*)(unsigned,void (*)(void)))wxDynamicLibrary::RawGetSymbol(prog, "ForPlugins_GetHostAPI");
     if ( !pf ) return nullptr;
-    return pf(version);
+    return pf(version, addr_of_wxuninit);
 }
 
 #endif  // INCLUSION_GUARD

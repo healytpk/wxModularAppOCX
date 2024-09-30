@@ -3,4 +3,3 @@ LIBRARY	"SampleGuiPlugin2"
 EXPORTS
 	CreatePlugin=CreatePlugin
 	DeletePlugin=DeletePlugin
-	Get_Address_Of_wxUninitialze=Get_Address_Of_wxUninitialze

@@ -22,6 +22,7 @@
 
 #include "SampleGuiPluginWindow2.h"
 #include <wxGuiPluginBase.h>
+#include "host_interaction.hpp"
 
 IMPLEMENT_DYNAMIC_CLASS( SampleGuiPluginWindow2, wxGuiPluginWindowBase )
 
@@ -77,7 +78,7 @@ void SampleGuiPluginWindow2::CreateControls()
     // Connect events and objects
     this->Connect(ID_SAMPLEGUIPLUGINWINDOW2, wxEVT_DESTROY, wxWindowDestroyEventHandler(SampleGuiPluginWindow2::OnDestroy), NULL, this);
 
-    GetPlugin()->GetEventHandler()->Bind( hostapi->GetEventTypeObject(), wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
+    GetPlugin()->GetEventHandler()->Bind( hostapi->wxEVT_GUI_PLUGIN_INTEROP, wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
 }
 
 bool SampleGuiPluginWindow2::ShowToolTips()
@@ -102,6 +103,6 @@ void SampleGuiPluginWindow2::OnInteropMessageReceived(wxCommandEvent & event)
 
 void SampleGuiPluginWindow2::OnDestroy( wxWindowDestroyEvent& event )
 {
-    GetPlugin()->GetEventHandler()->Unbind( hostapi->GetEventTypeObject(), wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
+    GetPlugin()->GetEventHandler()->Unbind( hostapi->wxEVT_GUI_PLUGIN_INTEROP, wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
     event.Skip();
 }

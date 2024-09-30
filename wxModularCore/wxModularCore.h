@@ -150,16 +150,6 @@ protected:
 
 			if ( pfnCreatePlugin )
 			{
-				// ==================================================
-				//   The next 9 lines check that the plugin's
-				//   wxWidgets library is the same as the wxWidgets
-				//   library used by the main program.
-				auto const pfnGetAddrUninit = (void*(*)(void))dll->RawGetSymbol( wxT("Get_Address_Of_wxUninitialze") );
-				if (pfnGetAddrUninit)
-				{
-					if ( (void*)&wxUninitialize != pfnGetAddrUninit() ) continue;
-				}
-				// ==================================================
 				if ( !(plugin = pfnCreatePlugin()) ) continue;  // deliberate assignment
 				yes(dll, plugin);
 			}

@@ -22,6 +22,7 @@
 
 #include "SampleGuiPluginWindow1.h"
 #include <wxGuiPluginBase.h>
+#include "host_interaction.hpp"
 
 IMPLEMENT_DYNAMIC_CLASS( SampleGuiPluginWindow1, wxGuiPluginWindowBase )
 
@@ -101,7 +102,7 @@ wxIcon SampleGuiPluginWindow1::GetIconResource( const wxString& /*name*/ )
 
 void SampleGuiPluginWindow1::OnSENDEVENTBUTTONClick( wxCommandEvent& event )
 {
-	wxCommandEvent e( hostapi->GetEventTypeObject() );
+	wxCommandEvent e( hostapi->wxEVT_GUI_PLUGIN_INTEROP );
 	e.SetString(m_SamppleTextCtrl->GetValue());
 	GetPlugin()->GetEventHandler()->AddPendingEvent(e);
     event.Skip();
