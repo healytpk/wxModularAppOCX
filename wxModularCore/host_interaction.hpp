@@ -26,7 +26,7 @@ struct HostAPIv1 {
     wxIcon (*wxGuiPluginWindowBase_GetIconResource)(wxGuiPluginWindowBase&, const wxString&);
 };
 
-extern HostAPIv1 const *hostfuncs;
+extern HostAPIv1 const *hostapi;
 
 inline void const *GetHostAPI(unsigned const version)
 {

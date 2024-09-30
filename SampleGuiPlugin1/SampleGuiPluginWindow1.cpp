@@ -101,7 +101,7 @@ wxIcon SampleGuiPluginWindow1::GetIconResource( const wxString& /*name*/ )
 
 void SampleGuiPluginWindow1::OnSENDEVENTBUTTONClick( wxCommandEvent& event )
 {
-	wxCommandEvent e( hostfuncs->GetEventTypeObject() );
+	wxCommandEvent e( hostapi->GetEventTypeObject() );
 	e.SetString(m_SamppleTextCtrl->GetValue());
 	GetPlugin()->GetEventHandler()->AddPendingEvent(e);
     event.Skip();

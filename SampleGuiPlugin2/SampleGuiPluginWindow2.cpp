@@ -77,7 +77,7 @@ void SampleGuiPluginWindow2::CreateControls()
     // Connect events and objects
     this->Connect(ID_SAMPLEGUIPLUGINWINDOW2, wxEVT_DESTROY, wxWindowDestroyEventHandler(SampleGuiPluginWindow2::OnDestroy), NULL, this);
 
-    GetPlugin()->GetEventHandler()->Bind( hostfuncs->GetEventTypeObject(), wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
+    GetPlugin()->GetEventHandler()->Bind( hostapi->GetEventTypeObject(), wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
 }
 
 bool SampleGuiPluginWindow2::ShowToolTips()
@@ -102,6 +102,6 @@ void SampleGuiPluginWindow2::OnInteropMessageReceived(wxCommandEvent & event)
 
 void SampleGuiPluginWindow2::OnDestroy( wxWindowDestroyEvent& event )
 {
-    GetPlugin()->GetEventHandler()->Unbind( hostfuncs->GetEventTypeObject(), wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
+    GetPlugin()->GetEventHandler()->Unbind( hostapi->GetEventTypeObject(), wxCommandEventHandler(SampleGuiPluginWindow2::OnInteropMessageReceived), this );
     event.Skip();
 }
