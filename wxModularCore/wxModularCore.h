@@ -9,7 +9,7 @@
 #ifdef __WXMSW__
     extern wxGuiPluginBase *Process_ActiveX_Plugin(wxDynamicLibrary *dll);  // defined in wxModularCore.cpp
 #else
-    inline wxGuiPluginBase *Process_ActiveX_Plugin(wxDynamicLibrary *const dll) return nullptr;
+    inline wxGuiPluginBase *Process_ActiveX_Plugin(wxDynamicLibrary *const dll) { return nullptr; }
 #endif
 
 // We need to keep the list of loaded DLLs
