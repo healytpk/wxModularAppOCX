@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INCLUSION_GUARD_8785468456585894189821656
+#define INCLUSION_GUARD_8785468456585894189821656
 
 template<class L>
 class AtScopeExit {
@@ -24,3 +25,5 @@ public:
 
 #define Auto(...) \
     Auto_INTERNAL2(__COUNTER__, __VA_ARGS__)
+
+#endif
