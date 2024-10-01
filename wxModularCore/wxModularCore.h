@@ -5,12 +5,9 @@
 #include <regex>          // regex, regex_match
 #include <wx/dynlib.h>    // wxDynamicLibrary
 #include "wxGuiPluginBase.h"
+#include "host_interaction.hpp"
 
-#ifdef __WXMSW__
-    extern wxGuiPluginBase *Process_ActiveX_Plugin(wxDynamicLibrary *dll);  // defined in wxModularCore.cpp
-#else
-    inline wxGuiPluginBase *Process_ActiveX_Plugin(wxDynamicLibrary *const dll) { return nullptr; }
-#endif
+DEMO_API wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll);  // defined in wxModularCore.cpp
 
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
@@ -155,7 +152,7 @@ protected:
 				if ( !(plugin = pfnCreatePlugin()) ) continue;  // deliberate assignment
 				yes(dll, plugin);
 			}
-			else if ( plugin = Process_ActiveX_Plugin( dll.get() ) )  // deliberate assignment
+			else if ( plugin = ForHost_Process_ActiveX_Plugin( dll.get() ) )  // deliberate assignment
 			{
 				yes(dll, plugin);
 			}

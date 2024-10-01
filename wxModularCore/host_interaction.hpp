@@ -11,8 +11,6 @@ struct HostAPIv1 {
     // Global objects
     wxEventType const &wxEVT_GUI_PLUGIN_INTEROP;
 
-    // Standalone functions
-
     // Class static member functions
     bool (&wxGuiPluginWindowBase_ShowToolTips)(void);
 
