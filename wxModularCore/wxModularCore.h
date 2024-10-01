@@ -6,14 +6,16 @@
 #include <wx/dynlib.h>    // wxDynamicLibrary
 #include "wxGuiPluginBase.h"
 
+#ifdef __WXMSW__
+    extern wxGuiPluginBase *Process_ActiveX_Plugin(wxDynamicLibrary *dll);  // defined in wxModularCore.cpp
+#else
+    inline wxGuiPluginBase *Process_ActiveX_Plugin(wxDynamicLibrary *const dll) return nullptr;
+#endif
+
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
 
 class wxModularCoreSettings;
-
-struct Process_ActiveX_Plugin {
-	static wxGuiPluginBase *Do(wxDynamicLibrary*);
-};
 
 class wxModularCore
 {
@@ -153,7 +155,7 @@ protected:
 				if ( !(plugin = pfnCreatePlugin()) ) continue;  // deliberate assignment
 				yes(dll, plugin);
 			}
-			else if ( plugin = Process_ActiveX_Plugin::Do( dll.get() ) )  // deliberate assignment
+			else if ( plugin = Process_ActiveX_Plugin( dll.get() ) )  // deliberate assignment
 			{
 				yes(dll, plugin);
 			}
@@ -163,75 +165,3 @@ protected:
 	}
 
 };
-
-#ifndef __WXMSW__
-
-inline wxGuiPluginBase *Process_ActiveX_Plugin::Do(wxDynamicLibrary*)
-{
-    // ActiveX controls are not non-GUI plugins.
-    // See template specialisation lower down in
-    // this file for GUI plugins.
-    return nullptr;
-}
-
-#else
-
-#include <cassert>        // assert
-#include <new>            // new(nothrow)
-#include <wx/string.h>    // wxString
-#include <wx/window.h>    // wxWindow
-
-extern "C" {
-	void OCX_Release_IOleObject(void *p_IOleObject);                  // defined in wxModularCoreOCX.cpp
-	wxWindow *OCX_CreatePanel(void *p_IOleObject, wxWindow *parent);  // defined in wxModularCoreOCX.cpp
-	void *OCX_Process_ActiveX_Plugin(wxDynamicLibrary *dll);          // defined in wxModularCoreOCX.cpp
-}
-
-class wxGuiPluginOCX : public wxGuiPluginBase {
-protected:
-	void *const p_IOleObject;
-
-public:
-
-	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
-	virtual void SetEventHandler(wxEvtHandler*) override {}
-
-	virtual wxString GetName(void) const override { return "Name OCX Plugin 0"; }
-	virtual wxString GetId  (void) const override { return "ID   OCX Plugin 0"; }
-
-	virtual wxWindow *CreatePanel(wxWindow *const parent) override
-	{
-		assert( nullptr != this->p_IOleObject );
-		assert( nullptr != parent             );
-		return OCX_CreatePanel(this->p_IOleObject, parent);
-	}
-
-	wxGuiPluginOCX(void *const arg_p_IOleObject) : p_IOleObject(arg_p_IOleObject)
-	{
-		assert( nullptr != arg_p_IOleObject );
-	}
-
-	~wxGuiPluginOCX(void) override
-	{
-		assert( nullptr != this->p_IOleObject );
-		OCX_Release_IOleObject(this->p_IOleObject);
-	}
-};
-
-inline wxGuiPluginBase *Process_ActiveX_Plugin::Do(wxDynamicLibrary *const dll)
-{
-    void *const pole = OCX_Process_ActiveX_Plugin(dll);
-
-    if ( nullptr == pole ) return nullptr;
-
-    auto *const plugin = new(std::nothrow) wxGuiPluginOCX(pole);
-    if ( nullptr == plugin )
-    {
-        OCX_Release_IOleObject(pole);
-        return nullptr;
-    }
-
-    return plugin;
-}
-
-#endif

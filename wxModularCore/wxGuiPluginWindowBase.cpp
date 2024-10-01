@@ -23,6 +23,11 @@
 #include "wxGuiPluginWindowBase.h"
 #include "wxGuiPluginBase.h"
 
+bool ForPlugins_wxGuiPluginWindowBase_ShowToolTips(void)  // static member function
+{
+    return true;
+}
+
 void ForPlugins_wxGuiPluginWindowBase_Init(wxGuiPluginWindowBase &obj)
 {
 
@@ -50,11 +55,6 @@ void ForPlugins_wxGuiPluginWindowBase_Constructor_ManyArguments(wxGuiPluginWindo
 {
     ForPlugins_wxGuiPluginWindowBase_Init(obj);
     ForPlugins_wxGuiPluginWindowBase_Create(obj, plugin, parent, id, pos, size, style);
-}
-
-bool ForPlugins_wxGuiPluginWindowBase_ShowToolTips(void)
-{
-    return true;
 }
 
 wxBitmap ForPlugins_wxGuiPluginWindowBase_GetBitmapResource(wxGuiPluginWindowBase &obj, const wxString& /*name*/ )

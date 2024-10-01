@@ -5,7 +5,6 @@
 #include <wx/window.h>                          // wxWindow
 #include "wxGuiPluginBase.h"                    // wxEVT_GUI_PLUGIN_INTEROP
 
-class wxGuiPluginBase;
 class wxGuiPluginWindowBase;
 
 struct HostAPIv1 {
@@ -15,18 +14,18 @@ struct HostAPIv1 {
     // Standalone functions
 
     // Class static member functions
-    bool (*wxGuiPluginWindowBase_ShowToolTips)();
+    bool (&wxGuiPluginWindowBase_ShowToolTips)(void);
 
     // Class constructors
-    void (*wxGuiPluginWindowBase_Constructor_void)(wxGuiPluginWindowBase&);
-    void (*wxGuiPluginWindowBase_Constructor_ManyArguments)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long);
+    void (&wxGuiPluginWindowBase_Constructor_void)(wxGuiPluginWindowBase&);
+    void (&wxGuiPluginWindowBase_Constructor_ManyArguments)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long);
 
     // Class member functions
-    bool (*wxGuiPluginWindowBase_Create)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long);
-    void (*wxGuiPluginWindowBase_Init)(wxGuiPluginWindowBase&);
-    void (*wxGuiPluginWindowBase_CreateControls)(wxGuiPluginWindowBase&);
-    wxBitmap (*wxGuiPluginWindowBase_GetBitmapResource)(wxGuiPluginWindowBase&, const wxString&);
-    wxIcon (*wxGuiPluginWindowBase_GetIconResource)(wxGuiPluginWindowBase&, const wxString&);
+    bool (&wxGuiPluginWindowBase_Create)(wxGuiPluginWindowBase&, wxGuiPluginBase*, wxWindow*, wxWindowID, const wxPoint&, const wxSize&, long);
+    void (&wxGuiPluginWindowBase_Init)(wxGuiPluginWindowBase&);
+    void (&wxGuiPluginWindowBase_CreateControls)(wxGuiPluginWindowBase&);
+    wxBitmap (&wxGuiPluginWindowBase_GetBitmapResource)(wxGuiPluginWindowBase&, const wxString&);
+    wxIcon (&wxGuiPluginWindowBase_GetIconResource)(wxGuiPluginWindowBase&, const wxString&);
 };
 
 extern HostAPIv1 const *hostapi;
@@ -35,7 +34,7 @@ inline void const *GetHostAPI( unsigned const version, void (*const addr_of_wxun
 {
     auto const prog = wxDynamicLibrary::GetProgramHandle();
     if ( !prog ) return nullptr;
-    auto const pf = (void const *(*)(unsigned,void (*)(void)))wxDynamicLibrary::RawGetSymbol(prog, "ForPlugins_GetHostAPI");
+    auto const pf = (void const *(*)(unsigned,void(*)(void)))wxDynamicLibrary::RawGetSymbol(prog, "ForPlugins_GetHostAPI");
     if ( !pf ) return nullptr;
     return pf(version, addr_of_wxuninit);
 }
