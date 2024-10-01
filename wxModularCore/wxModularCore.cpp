@@ -1,10 +1,4 @@
 #include "stdwx.h"
-#include <guiddef.h>                     // CLSID, CLSID_NULL, REFCLSID, REFIID
-#include <oaidl.h>                       // ITypeLib
-#include <objbase.h>                     // CoInitializeEx
-#include <oleauto.h>                     // LoadTypeLib
-#include <oleidl.h>                      // IOleObject
-#include <unknwn.h>                      // IClassFactory
 #include "wxModularCore.h"
 #include "wxModularCoreSettings.h"
 #include <wx/listimpl.cpp>
@@ -124,6 +118,13 @@ DEMO_API void const *ForPlugins_GetHostAPI( unsigned const version, void (*const
 }  // extern "C"
 
 #ifdef __WXMSW__
+
+#include <guiddef.h>                     // CLSID, CLSID_NULL, REFCLSID, REFIID
+#include <oaidl.h>                       // ITypeLib
+#include <objbase.h>                     // CoInitializeEx
+#include <oleauto.h>                     // LoadTypeLib
+#include <oleidl.h>                      // IOleObject
+#include <unknwn.h>                      // IClassFactory
 
 void OCX_Release_IOleObject(void *const p_IOleObject)
 {
