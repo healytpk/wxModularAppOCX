@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "wxModularCoreSettings.h"
 
 wxModularCoreSettings::wxModularCoreSettings()

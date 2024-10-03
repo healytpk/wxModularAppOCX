@@ -1,8 +1,8 @@
-#include "stdwx.h"
 #include "wxModularCore.h"
 #include "wxModularCoreSettings.h"
 #include <wx/listimpl.cpp>
 #include <wx/init.h>                     // wxUninitialize
+#include <wx/stdpaths.h>                 // wxStandardPaths
 #include "wxGuiPluginBase.h"             // wxEVT_GUI_PLUGIN_INTEROP
 #include "host_interaction.hpp"
 #include "Auto.h"

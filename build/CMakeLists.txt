@@ -4,8 +4,6 @@ cmake_policy(SET CMP0026 OLD)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include(PCHSupport.cmake)
-
 if(LINUX)
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 endif(LINUX)
@@ -99,8 +97,6 @@ set(PROJECT_ROOT_DIR ${PROJECT_SOURCE_DIR}/..)
 # them into separate subfolder. We will create 
 # the variable which points to this subfolder.
 set(THIRD_PARTY_DIR ${PROJECT_ROOT_DIR}/ThirdParty)
-
-set(BASE_INCLUDE_DIRECTORIES ${PROJECT_ROOT_DIR}/include)
 
 # Add wxWidgets include paths to the list of 
 # include directories for all projects.

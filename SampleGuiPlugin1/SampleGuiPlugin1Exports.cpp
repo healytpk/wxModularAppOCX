@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include <wx/init.h>             // wxUninitialize
 #include <wxGuiPluginBase.h>
 #include "SampleGuiPlugin1.h"

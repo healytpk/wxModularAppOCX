@@ -3,7 +3,10 @@
 #include <cstddef>        // size_t
 #include <memory>         // unique_ptr
 #include <regex>          // regex, regex_match
+#include <wx/dir.h>       // wxDir
 #include <wx/dynlib.h>    // wxDynamicLibrary
+#include <wx/filename.h>  // wxFileName
+#include <wx/log.h>       // wxLogDebug
 #include "wxGuiPluginBase.h"
 #include "host_interaction.hpp"
 

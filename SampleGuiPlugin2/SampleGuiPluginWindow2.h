@@ -1,16 +1,7 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        SampleGuiPluginWindow2.h
-// Purpose:     
-// Author:      Volodymyr (T-Rex) Triapichko
-// Modified by: 
-// Created:     10/09/2013 00:01:49
-// RCS-ID:      
-// Copyright:   Volodymyr (T-Rex) Triapichko, 2013
-// Licence:     
-/////////////////////////////////////////////////////////////////////////////
-
 #ifndef _SAMPLEGUIPLUGINWINDOW2_H_
 #define _SAMPLEGUIPLUGINWINDOW2_H_
+
+#include <wx/textctrl.h>
 
 #include <wxGuiPluginWindowBase.h>
 

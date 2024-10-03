@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "SampleModularCore.h"
 #include <wx/listimpl.cpp>
 

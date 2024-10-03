@@ -1,6 +1,7 @@
 #pragma once
 
 #include <wx/object.h>      // wxObject
+#include <wx/window.h>      // wxWindow
 #include "Declarations.h"
 
 class wxGuiPluginBase : public wxObject {

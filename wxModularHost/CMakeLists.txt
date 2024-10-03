@@ -45,9 +45,7 @@ if(LINUX)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
 endif(LINUX)
 
-set(SRCS ${SRCS} ${HEADERS} 
-	${PROJECT_ROOT_DIR}/include/stdwx.h 
-	${PROJECT_ROOT_DIR}/include/stdwx.cpp)
+set(SRCS ${SRCS} ${HEADERS})
 
 set(PROJECT_FILES ${SRCS})
 add_executable(${EXECUTABLE_NAME} ${EXECUTABLE_TYPE} ${PROJECT_FILES})
@@ -70,8 +68,6 @@ if(MSVC)
 endif()
 
 add_dependencies(${EXECUTABLE_NAME} wxModularCore)
-
-target_precompile_headers(${EXECUTABLE_NAME} PRIVATE ${PROJECT_ROOT_DIR}/include/stdwx.h ${PROJECT_ROOT_DIR}/include/stdwx.cpp)
 
 if(APPLE)
 	FOREACH(DEP_LIB ${DEMO_LIBS_SHARED})

@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "SampleGuiPlugin2.h"
 #include "SampleGuiPluginWindow2.h"
 

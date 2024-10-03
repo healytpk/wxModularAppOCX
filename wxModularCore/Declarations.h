@@ -11,4 +11,12 @@
 #      define DEMO_API __attribute__((visibility("default")))
 #endif
 
+#if defined(WIN32) || defined(WINDOWS)
+#include <windows.h>
+#include <winnt.h>
+#define PLUGIN_EXPORTED_API	WXEXPORT
+#else
+#define PLUGIN_EXPORTED_API	extern "C"
+#endif
+
 #endif // _DECLARATIONS_H

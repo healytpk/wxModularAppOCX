@@ -18,9 +18,7 @@ if(LINUX OR APPLE)
 	SET(CMAKE_INSTALL_RPATH ".:./../../")
 endif(LINUX OR APPLE)
 
-set(SRCS ${SRCS} ${HEADERS} 
-	${PROJECT_ROOT_DIR}/include/stdwx.h 
-	${PROJECT_ROOT_DIR}/include/stdwx.cpp)
+set(SRCS ${SRCS} ${HEADERS})
 
 add_definitions(${PREPROCESSOR_DEFINITIONS})
 
@@ -52,8 +50,6 @@ endif(LINUX OR APPLE)
 set_target_properties(${LIBRARY_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TARGET_LOCATION})
 
 target_link_libraries(${LIBRARY_NAME} ${DEMO_LIBS} ${wxWidgets_LIBRARIES})
-
-target_precompile_headers(${LIBRARY_NAME} PRIVATE ${PROJECT_ROOT_DIR}/include/stdwx.h ${PROJECT_ROOT_DIR}/include/stdwx.cpp)
 
 if(APPLE)
 	FOREACH(DEP_LIB ${DEMO_LIBS})

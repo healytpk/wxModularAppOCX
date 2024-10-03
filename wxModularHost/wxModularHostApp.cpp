@@ -9,16 +9,7 @@
 // Licence:     
 /////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h".
-#include "stdwx.h"
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
-
-#ifndef WX_PRECOMP
 #include "wx/wx.h"
-#endif
 
 ////@begin includes
 ////@end includes
