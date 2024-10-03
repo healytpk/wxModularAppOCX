@@ -1,5 +1,6 @@
 #pragma once
 
+#include <wx/wx.h>
 #include <wx/object.h>      // wxObject
 #include <wx/window.h>      // wxWindow
 #include "Declarations.h"
