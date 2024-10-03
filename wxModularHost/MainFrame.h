@@ -1,14 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        MainFrame.h
-// Purpose:     
-// Author:      Volodymyr (T-Rex) Triapichko
-// Modified by: 
-// Created:     02/08/2013 21:20:05
-// RCS-ID:      
-// Copyright:   Volodymyr (T-Rex) Triapichko, 2013
-// Licence:     
-/////////////////////////////////////////////////////////////////////////////
-
 #ifndef _MAINFRAME_H_
 #define _MAINFRAME_H_
 

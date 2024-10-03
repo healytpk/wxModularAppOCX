@@ -1,14 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        wxModularHostApp.cpp
-// Purpose:     
-// Author:      Volodymyr (T-Rex) Triapichko
-// Modified by: 
-// Created:     02/08/2013 21:14:33
-// RCS-ID:      
-// Copyright:   Volodymyr (T-Rex) Triapichko, 2013
-// Licence:     
-/////////////////////////////////////////////////////////////////////////////
-
 #include "wx/wx.h"
 
 ////@begin includes

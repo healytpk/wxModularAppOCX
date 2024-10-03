@@ -1,25 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        wxGuiPluginWindowBase.cpp
-// Purpose:     
-// Author:      Volodymyr (T-Rex) Triapichko
-// Modified by: 
-// Created:     09/09/2013 23:54:21
-// RCS-ID:      
-// Copyright:   Volodymyr (T-Rex) Triapichko, 2013
-// Licence:     
-/////////////////////////////////////////////////////////////////////////////
-
-// For compilers that support precompilation, includes "wx/wx.h".
-#include "wx/wxprec.h"
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
-
-#ifndef WX_PRECOMP
 #include "wx/wx.h"
-#endif
-
 #include "wxGuiPluginWindowBase.h"
 #include "wxGuiPluginBase.h"
 
