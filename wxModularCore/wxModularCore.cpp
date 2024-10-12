@@ -23,6 +23,107 @@ wxModularCore::~wxModularCore()
 	wxDELETE(this->m_Settings);
 }
 
+bool wxModularCore::RegisterPlugin(wxGuiPluginBase *const plugin, wxGuiPluginBaseList &list)
+{
+    list.Append(plugin);
+    return true;
+}
+
+bool wxModularCore::UnRegisterPlugin(wxGuiPluginBase *plugin, wxGuiPluginBaseList &container, wxGuiPluginToDllDictionary &pluginMap)
+{
+    typename wxGuiPluginBaseList::compatibility_iterator it = container.Find(plugin);
+    if ( nullptr == it ) return false;
+
+    wxDynamicLibrary *const dll = (wxDynamicLibrary *)pluginMap[plugin];
+
+    if ( nullptr != dll ) // Probably plugin was not loaded from dll
+    {
+        auto const pfnDeletePlugin = (DeletePlugin_function) dll->RawGetSymbol(wxT("DeletePlugin"));
+        if ( nullptr != pfnDeletePlugin )
+        {
+            pfnDeletePlugin(plugin);
+            container.Erase(it);
+            pluginMap.erase(plugin);
+            return true;
+        }
+    }
+
+    wxDELETE(plugin);
+    container.Erase(it);
+
+    return true;
+}
+
+bool wxModularCore::UnloadPlugins(wxGuiPluginBaseList &list, wxGuiPluginToDllDictionary &pluginDictionary)
+{
+    bool result = true;
+    wxGuiPluginBase *plugin = nullptr;
+    while ( list.GetFirst() && (plugin = list.GetFirst()->GetData()) )
+    {
+        result &= UnRegisterPlugin(plugin, list, pluginDictionary);
+    }
+    return result;
+}
+
+bool wxModularCore::LoadPlugins(wxString const &pluginsDirectory, wxGuiPluginBaseList &list, wxGuiPluginToDllDictionary &pluginDictionary)
+{
+    wxFileName fn;
+    fn.AssignDir(pluginsDirectory);
+    wxLogDebug(wxT("%s"), fn.GetFullPath().data());
+    if ( false == fn.DirExists() ) return false;
+    if ( false == wxDirExists(fn.GetFullPath()) ) return false;
+    wxArrayString pluginPaths;
+    wxDir::GetAllFiles(fn.GetFullPath(), &pluginPaths, wxEmptyString, wxDIR_FILES|wxDIR_DIRS|wxDIR_HIDDEN);
+
+    // ==== The 'pluginPaths' now contains all of the
+    // ==== filenames in the directory, so we iterate
+    // ==== through them all to remove the ones
+    // ==== that don't match the regex for a plugin
+    for ( unsigned i = 0u; i < pluginPaths.GetCount(); ++i )
+    {
+        // Hopefully converting the wxString to an std::string
+        // will leave us with a string that we can do regex on
+        if ( false == std::regex_match( pluginPaths[i].ToStdString(), this->GetPluginRegex() ) )
+        {
+            pluginPaths.RemoveAt( i-- );
+        }
+    }
+
+    auto const yes = [this,&list,&pluginDictionary]( std::unique_ptr<wxDynamicLibrary> &pL, wxGuiPluginBase *const pP )
+        {
+                this->RegisterPlugin(pP, list);
+                this->m_DllList.Append( pL.get() );
+                auto const p = pL.release();
+                pluginDictionary[pP] = p;
+        };
+
+    for ( unsigned i = 0u; i < pluginPaths.GetCount(); ++i )
+    {
+        wxGuiPluginBase *plugin = nullptr;
+
+        wxString fileName = pluginPaths[i];
+        std::unique_ptr<wxDynamicLibrary> dll( new wxDynamicLibrary(fileName) );
+        if ( !dll || !dll->IsLoaded() ) continue;
+
+        auto const pfnCreatePlugin = (CreatePlugin_function) dll->RawGetSymbol( wxT("CreatePlugin") );
+
+        if ( pfnCreatePlugin )
+        {
+            plugin = pfnCreatePlugin();
+            if ( nullptr == plugin ) continue;
+            yes(dll, plugin);
+        }
+        else
+        {
+            plugin = ForHost_Process_ActiveX_Plugin( dll.get() );
+            if ( nullptr == plugin ) continue;
+            yes(dll, plugin);
+        }
+    }
+
+    return true;
+}
+
 void wxModularCore::Clear()
 {
 	UnloadAllPlugins();
@@ -64,12 +165,7 @@ bool wxModularCore::LoadAllPlugins(bool forceProgramPath)
 {
 	wxString pluginsRootDir = GetPluginsPath(forceProgramPath);
 	bool result = true;
-	result &= LoadPlugins<
-		wxGuiPluginBaseList,
-		wxGuiPluginToDllDictionary,
-		CreatePlugin_function>(pluginsRootDir,
-		m_GuiPlugins,
-		m_MapGuiPluginsDll);
+	result &= LoadPlugins(pluginsRootDir, m_GuiPlugins, m_MapGuiPluginsDll);
 	// You can implement other logic which takes in account
 	// the result of LoadPlugins() calls
 	for(wxGuiPluginBaseList::Node * node = m_GuiPlugins.GetFirst();
@@ -83,12 +179,7 @@ bool wxModularCore::LoadAllPlugins(bool forceProgramPath)
 
 bool wxModularCore::UnloadAllPlugins()
 {
-	return
-		UnloadPlugins<
-			wxGuiPluginBaseList,
-			wxGuiPluginToDllDictionary,
-			DeletePlugin_function>(m_GuiPlugins,
-			m_MapGuiPluginsDll);
+	return UnloadPlugins(m_GuiPlugins, m_MapGuiPluginsDll);
 }
 
 wxGuiPluginBaseList const &wxModularCore::GetGuiPlugins() const
