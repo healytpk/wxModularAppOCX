@@ -1,10 +1,8 @@
 set(SRCS
 	MainFrame.cpp
-	SampleModularCore.cpp
 	wxModularHostApp.cpp)
 set(HEADERS
 	MainFrame.h
-	SampleModularCore.h
 	wxModularHostApp.h)
 	
 set(INCLUDE_DIRECTORIES ${BASE_INCLUDE_DIRECTORIES}

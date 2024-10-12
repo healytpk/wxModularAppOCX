@@ -18,8 +18,9 @@ wxModularCore::wxModularCore()
 
 wxModularCore::~wxModularCore()
 {
-	wxDELETE(m_Handler);
-	wxDELETE(m_Settings);
+	this->Clear();
+	wxDELETE(this->m_Handler);
+	wxDELETE(this->m_Settings);
 }
 
 void wxModularCore::Clear()
@@ -55,6 +56,44 @@ std::regex wxModularCore::GetPluginRegex() const
 #else
 	return std::regex("no_known_plugin");
 #endif
+}
+
+WX_DEFINE_LIST(wxGuiPluginBaseList);
+
+bool wxModularCore::LoadAllPlugins(bool forceProgramPath)
+{
+	wxString pluginsRootDir = GetPluginsPath(forceProgramPath);
+	bool result = true;
+	result &= LoadPlugins<
+		wxGuiPluginBaseList,
+		wxGuiPluginToDllDictionary,
+		CreatePlugin_function>(pluginsRootDir,
+		m_GuiPlugins,
+		m_MapGuiPluginsDll);
+	// You can implement other logic which takes in account
+	// the result of LoadPlugins() calls
+	for(wxGuiPluginBaseList::Node * node = m_GuiPlugins.GetFirst();
+		node; node = node->GetNext())
+	{
+		wxGuiPluginBase * plugin = node->GetData();
+		plugin->SetEventHandler(m_Handler);
+	}
+	return true;
+}
+
+bool wxModularCore::UnloadAllPlugins()
+{
+	return
+		UnloadPlugins<
+			wxGuiPluginBaseList,
+			wxGuiPluginToDllDictionary,
+			DeletePlugin_function>(m_GuiPlugins,
+			m_MapGuiPluginsDll);
+}
+
+wxGuiPluginBaseList const &wxModularCore::GetGuiPlugins() const
+{
+	return m_GuiPlugins;
 }
 
 // Global objects

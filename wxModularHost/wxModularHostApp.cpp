@@ -4,7 +4,7 @@
 ////@end includes
 
 #include "wxModularHostApp.h"
-#include "SampleModularCore.h"
+#include "wxModularCore.h"
 
 ////@begin XPM images
 ////@end XPM images
@@ -55,7 +55,7 @@ wxModularHostApp::wxModularHostApp()
 void wxModularHostApp::Init()
 {
 ////@begin wxModularHostApp member initialisation
-	m_PluginManager = new SampleModularCore;
+	m_PluginManager = new wxModularCore;
 ////@end wxModularHostApp member initialisation
 }
 

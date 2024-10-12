@@ -6,7 +6,7 @@
 
 #include "MainFrame.h"
 #include "wxModularHostApp.h"
-#include "SampleModularCore.h"
+#include "wxModularCore.h"
 
 ////@begin XPM images
 ////@end XPM images
@@ -158,7 +158,7 @@ wxIcon MainFrame::GetIconResource( const wxString& name )
 
 void MainFrame::AddPagesFromGuiPlugins()
 {
-	SampleModularCore * pluginManager = wxGetApp().GetPluginManager();
+	wxModularCore * pluginManager = wxGetApp().GetPluginManager();
 	for(wxGuiPluginBaseList::Node * node = pluginManager->GetGuiPlugins().GetFirst();
 		node; node = node->GetNext())
 	{

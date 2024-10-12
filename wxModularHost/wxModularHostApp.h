@@ -17,7 +17,7 @@
 
 ////@begin forward declarations
 ////@end forward declarations
-class SampleModularCore;
+class wxModularCore;
 
 /*!
  * Control identifiers
@@ -53,13 +53,13 @@ public:
 
 ////@begin wxModularHostApp member function declarations
 
-	SampleModularCore * GetPluginManager() const { return m_PluginManager ; }
-	void SetPluginManager(SampleModularCore * value) { m_PluginManager = value ; }
+	wxModularCore * GetPluginManager() const { return m_PluginManager ; }
+	void SetPluginManager(wxModularCore * value) { m_PluginManager = value ; }
 
 ////@end wxModularHostApp member function declarations
 
 ////@begin wxModularHostApp member variables
-	SampleModularCore * m_PluginManager = nullptr;
+	wxModularCore * m_PluginManager = nullptr;
 ////@end wxModularHostApp member variables
 };
 

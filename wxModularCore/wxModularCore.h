@@ -14,11 +14,22 @@ DEMO_API wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll);
 
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
+// We need to know which DLL produced the specific plugin object.
+WX_DECLARE_HASH_MAP(wxGuiPluginBase*, wxDynamicLibrary*, \
+					wxPointerHash, wxPointerEqual, \
+					wxGuiPluginToDllDictionary);
+// And separate list of loaded plugins for faster access.
+WX_DECLARE_LIST(wxGuiPluginBase, wxGuiPluginBaseList);
 
 class wxModularCoreSettings;
 
-class wxModularCore
-{
+class wxModularCore {
+protected:
+	wxGuiPluginToDllDictionary m_MapGuiPluginsDll;
+	wxGuiPluginBaseList m_GuiPlugins;
+	wxDynamicLibraryList m_DllList;
+	wxModularCoreSettings * m_Settings;
+	wxEvtHandler * m_Handler;
 public:
 	wxModularCore();
 	virtual ~wxModularCore();
@@ -26,16 +37,12 @@ public:
 	virtual wxString GetPluginsPath(bool forceProgramPath) const;
 	virtual std::regex GetPluginRegex() const;
 
-	virtual bool LoadAllPlugins(bool forceProgramPath) = 0;
-	virtual bool UnloadAllPlugins() = 0;
+	virtual bool LoadAllPlugins(bool forceProgramPath);
+	virtual bool UnloadAllPlugins();
 	virtual void Clear();
+
+	wxGuiPluginBaseList const & GetGuiPlugins(void) const;
 protected:
-
-	wxDynamicLibraryList m_DllList;
-
-	wxModularCoreSettings * m_Settings;
-	wxEvtHandler * m_Handler;
-
 	template<typename PluginListType>
 		bool RegisterPlugin(wxGuiPluginBase * plugin, 
 		PluginListType & list)
@@ -163,5 +170,4 @@ protected:
 
 		return true;
 	}
-
 };
