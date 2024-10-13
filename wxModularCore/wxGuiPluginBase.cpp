@@ -14,7 +14,10 @@ DEFINE_EVENT_TYPE(wxEVT_GUI_PLUGIN_INTEROP)
 #include "Auto.h"        // Auto
 
 extern void OCX_Release_IOleObject(void *const p_IOleObject);
-extern std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *arg0, void *arg1);
+
+// I don't know why the Microsoft VC++ compiler requires
+// the following function to have C linkage
+extern "C" std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *arg0, void *arg1);
 
 wxGuiPluginOCX::wxGuiPluginOCX(void *const arg_p_IOleObject) : p_IOleObject(arg_p_IOleObject)
 {

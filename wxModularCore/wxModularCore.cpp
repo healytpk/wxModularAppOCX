@@ -263,7 +263,7 @@ void OCX_Release_IOleObject(void *const p_IOleObject)
     static_cast<IOleObject*>(p_IOleObject)->Release();
 }
 
-std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *const arg0, void *const arg1)
+extern "C" std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *const arg0, void *const arg1)
 {
 	static wxDynamicLibrary dll( wxT("atl.dll") );  // must keep loaded -- don't unload it
 	if ( false == dll.IsLoaded() ) return 666;
