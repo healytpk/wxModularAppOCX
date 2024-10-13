@@ -10,8 +10,6 @@
 #include "wxGuiPluginBase.h"
 #include "host_interaction.hpp"
 
-DEMO_API wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll);  // defined in wxModularCore.cpp
-
 // We need to keep the list of loaded DLLs
 WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
 // We need to know which DLL produced the specific plugin object.

@@ -28,13 +28,4 @@ struct HostAPIv1 {
 
 extern HostAPIv1 const *hostapi;
 
-inline void const *GetHostAPI( unsigned const version, void (*const addr_of_wxuninit)(void) )
-{
-    auto const prog = wxDynamicLibrary::GetProgramHandle();
-    if ( !prog ) return nullptr;
-    auto const pf = (void const *(*)(unsigned,void(*)(void)))wxDynamicLibrary::RawGetSymbol(prog, "ForPlugins_GetHostAPI");
-    if ( !pf ) return nullptr;
-    return pf(version, addr_of_wxuninit);
-}
-
 #endif  // INCLUSION_GUARD

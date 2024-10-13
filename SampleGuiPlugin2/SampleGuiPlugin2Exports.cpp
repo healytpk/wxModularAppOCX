@@ -5,9 +5,9 @@
 
 HostAPIv1 const *hostapi = nullptr;
 
-PLUGIN_EXPORTED_API wxGuiPluginBase *CreatePlugin()
+PLUGIN_EXPORTED_API wxGuiPluginBase *CreatePlugin( void const *(*const ForPlugins_GetHostAPI)( unsigned version, void (*addr_of_wxuninit)(void) ) )
 {
-    hostapi = static_cast<HostAPIv1 const*>(  GetHostAPI(1u, &wxUninitialize)  );
+    hostapi = static_cast<HostAPIv1 const*>(  ForPlugins_GetHostAPI(1u, &wxUninitialize)  );
     if ( nullptr == hostapi ) return nullptr;
     return new SampleGuiPlugin2;
 }

@@ -9,6 +9,9 @@
 
 WX_DEFINE_LIST(wxDynamicLibraryList);
 
+static void const *ForPlugins_GetHostAPI( unsigned version, void (*addr_of_wxuninit)(void) ); // defined lower down in this file
+static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll);  // defined lower down in this file
+
 wxModularCore::wxModularCore()
 	: m_Settings(new wxModularCoreSettings), m_Handler(new wxEvtHandler)
 {
@@ -109,7 +112,7 @@ bool wxModularCore::LoadPlugins(wxString const &pluginsDirectory, wxGuiPluginBas
 
         if ( pfnCreatePlugin )
         {
-            plugin = pfnCreatePlugin();
+            plugin = pfnCreatePlugin(&ForPlugins_GetHostAPI);
             if ( nullptr == plugin ) continue;
             yes(dll, plugin);
         }
@@ -201,8 +204,7 @@ extern bool ForPlugins_wxGuiPluginWindowBase_Create(wxGuiPluginWindowBase & obj,
 extern wxBitmap ForPlugins_wxGuiPluginWindowBase_GetBitmapResource(wxGuiPluginWindowBase & obj, const wxString& /*name*/);
 extern wxIcon ForPlugins_wxGuiPluginWindowBase_GetIconResource(wxGuiPluginWindowBase & obj, const wxString& /*name*/);
 
-extern "C" {
-DEMO_API void const *ForPlugins_GetHostAPI( unsigned const version, void (*const addr_of_wxuninit)(void) )
+static void const *ForPlugins_GetHostAPI( unsigned const version, void (*const addr_of_wxuninit)(void) )
 {
 	// The next line ensures that the host program and
 	// the plugin are both using the same wxWidgets
@@ -245,7 +247,6 @@ DEMO_API void const *ForPlugins_GetHostAPI( unsigned const version, void (*const
 
 	return nullptr;
 }
-}  // extern "C"
 
 #ifdef __WXMSW__
 
@@ -262,7 +263,7 @@ void OCX_Release_IOleObject(void *const p_IOleObject)
     static_cast<IOleObject*>(p_IOleObject)->Release();
 }
 
-extern "C" std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *const arg0, void *const arg1)
+std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *const arg0, void *const arg1)
 {
 	static wxDynamicLibrary dll( wxT("atl.dll") );  // must keep loaded -- don't unload it
 	if ( false == dll.IsLoaded() ) return 666;
@@ -324,7 +325,7 @@ static CLSID Get_First_ActiveX_Control(TCHAR const *const lib)
 	return CLSID_NULL;
 }
 
-DEMO_API wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll)
+static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll)
 {
 	// If control reaches here, we couldn't find 'CreatePlugin'
 	// inside the dynamically-loaded library. Now let's check
@@ -380,6 +381,6 @@ DEMO_API wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const
 #else
 
 // For all platforms other than MS-Windows
-DEMO_API wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll) { return nullptr; }
+static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll) { return nullptr; }
 
 #endif // ifdef __WXMSW__

@@ -14,7 +14,7 @@ DEFINE_EVENT_TYPE(wxEVT_GUI_PLUGIN_INTEROP)
 #include "Auto.h"        // Auto
 
 extern void OCX_Release_IOleObject(void *const p_IOleObject);
-extern "C" std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *arg0, void *arg1);
+extern std::int32_t DynamicallyLoaded_AtlAxAttachControl(void *arg0, void *arg1);
 
 wxGuiPluginOCX::wxGuiPluginOCX(void *const arg_p_IOleObject) : p_IOleObject(arg_p_IOleObject)
 {

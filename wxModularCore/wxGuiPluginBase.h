@@ -19,7 +19,7 @@ public:
 
 DECLARE_EXPORTED_EVENT_TYPE(DEMO_API, wxEVT_GUI_PLUGIN_INTEROP, wxEVT_USER_FIRST + 100)
 
-typedef wxGuiPluginBase *(*CreatePlugin_function)(void);
+typedef wxGuiPluginBase *(*CreatePlugin_function)( void const *(*const ForPlugins_GetHostAPI)( unsigned version, void (*addr_of_wxuninit)(void) ) );
 typedef void (*DeletePlugin_function)(wxGuiPluginBase*);
 
 #ifdef __WXMSW__
