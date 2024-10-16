@@ -115,6 +115,20 @@ void MainFrame::CreateControls()
 
     GetAuiManager().Update();
 
+    auto const panel  = new wxPanel(m_Notebook);
+    auto const label  = new wxStaticText(panel, wxID_STATIC, _("No plugins loaded until you click their tab"));
+    auto const bsizer = new wxBoxSizer(wxVERTICAL);
+
+    bsizer->AddStretchSpacer(1);
+    bsizer->Add(label, 1, wxALIGN_CENTER_HORIZONTAL);
+    bsizer->AddStretchSpacer(1);
+
+    panel->SetSizer(bsizer);
+    bsizer->Fit(panel);
+    panel->Layout();
+
+    m_Notebook->AddPage(panel, _("Home"));
+
 ////@end MainFrame content construction
 	AddPagesFromGuiPlugins();
 
