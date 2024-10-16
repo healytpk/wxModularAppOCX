@@ -1,3 +1,4 @@
+#include <optional>    // optional
 #include "wx/wx.h"
 
 ////@begin includes
@@ -7,10 +8,40 @@
 #include "MainFrame.h"
 #include "wxModularHostApp.h"
 #include "wxModularCore.h"
+#include "Auto.h"
 
 ////@begin XPM images
 ////@end XPM images
 
+class TabWindowForPlugin : public wxWindow {
+protected:
+    wxWindow *child = nullptr;
+    wxGuiPluginBase *const plugin;
+public:
+    TabWindowForPlugin(wxWindow *const parent, wxGuiPluginBase *const arg_plugin)
+      : wxWindow(parent, wxID_ANY), plugin(arg_plugin)
+    {
+        // nothing to do in here
+    }
+    void ShowPluginWidgets(void)
+    {
+        Auto(
+        {
+            if ( nullptr == this->child ) return;
+            wxShowEvent e( this->child->GetId(), true );
+            e.SetEventObject( this->child );
+            this->child->GetEventHandler()->AddPendingEvent(e);
+        });
+        if ( nullptr != this->child ) return;
+        this->child = this->plugin->CreatePanel(this);
+        if ( nullptr == this->child ) return;
+        auto *const bsizer = new wxBoxSizer(wxVERTICAL);
+        bsizer->Add( this->child, 1, wxEXPAND, 5 );
+        this->SetSizer(bsizer);
+        bsizer->Fit(this);
+        this->Layout();
+    }
+};
 
 /*
  * MainFrame type definition
