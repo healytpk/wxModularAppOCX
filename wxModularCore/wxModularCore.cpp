@@ -173,13 +173,18 @@ std::vector<wxString> wxModularCore::GetGuiPluginFilenames(void) const
 void TabWindowForPlugin::ShowPluginWidgets(void)
 {
     auto const Arrange  =
-      [this]()
+      [this](int const flags)
       {
         assert( nullptr != this->child );
         auto *const bsizer = new wxBoxSizer(wxVERTICAL);
-        bsizer->AddStretchSpacer(1);
-        bsizer->Add( this->child, 1, wxALIGN_CENTRE_HORIZONTAL );
-        bsizer->AddStretchSpacer(1);
+#ifdef __WXMSW__
+        bool const is_ocx = ( nullptr != dynamic_cast<wxGuiPluginOCX*>(this->plugin) );
+#else
+        constexpr bool is_ocx = false;
+#endif
+        if ( false == is_ocx ) bsizer->AddStretchSpacer(-1);
+        bsizer->Add(this->child, 1, flags);
+        if ( false == is_ocx ) bsizer->AddStretchSpacer(-1);
         this->SetSizer(bsizer);
         bsizer->Fit(this->child);
         this->Layout();
@@ -189,7 +194,7 @@ void TabWindowForPlugin::ShowPluginWidgets(void)
         if ( nullptr == this->child )
         {
             this->child = new wxStaticText(this, wxID_STATIC, _("Failed to load plugin."));
-            Arrange();
+            Arrange(wxALIGN_CENTRE_HORIZONTAL);
             return;
         }
         auto *const phandler = this->child->GetEventHandler();
@@ -201,13 +206,16 @@ void TabWindowForPlugin::ShowPluginWidgets(void)
     if ( nullptr != this->child ) return;
     if ( nullptr == this->plugin )
     {
+        assert( nullptr != this->pluginManager );
         this->plugin = this->pluginManager->LoadPlugin(this->filename);
         if ( nullptr == plugin ) return;
-        plugin->SetEventHandler( this->pluginManager->GetEventHandler() );
+        auto *const phandler = this->pluginManager->GetEventHandler();
+        assert( nullptr != phandler );
+        plugin->SetEventHandler(phandler);
     }
     this->child = this->plugin->CreatePanel(this);
     if ( nullptr == this->child ) return;
-    Arrange();
+    Arrange(wxEXPAND);
 }
 
 // Global objects
