@@ -1,4 +1,4 @@
-#include <optional>    // optional
+#include <cassert>
 #include "wx/wx.h"
 
 ////@begin includes
@@ -13,54 +13,11 @@
 ////@begin XPM images
 ////@end XPM images
 
-class TabWindowForPlugin : public wxWindow {
-protected:
-    wxWindow *child = nullptr;
-    wxGuiPluginBase *const plugin;
-public:
-    TabWindowForPlugin(wxWindow *const parent, wxGuiPluginBase *const arg_plugin)
-      : wxWindow(parent, wxID_ANY), plugin(arg_plugin)
-    {
-        // nothing to do in here
-    }
-    void ShowPluginWidgets(void)
-    {
-        Auto(
-        {
-            if ( nullptr == this->child ) return;
-            wxShowEvent e( this->child->GetId(), true );
-            e.SetEventObject( this->child );
-            this->child->GetEventHandler()->AddPendingEvent(e);
-        });
-        if ( nullptr != this->child ) return;
-        this->child = this->plugin->CreatePanel(this);
-        if ( nullptr == this->child ) return;
-        auto *const bsizer = new wxBoxSizer(wxVERTICAL);
-        bsizer->Add( this->child, 1, wxEXPAND, 5 );
-        this->SetSizer(bsizer);
-        bsizer->Fit(this);
-        this->Layout();
-    }
-};
-
 /*
  * MainFrame type definition
  */
 
 IMPLEMENT_CLASS( MainFrame, wxFrame )
-
-
-/*
- * MainFrame event table definition
- */
-
-BEGIN_EVENT_TABLE( MainFrame, wxFrame )
-
-////@begin MainFrame event table entries
-////@end MainFrame event table entries
-
-END_EVENT_TABLE()
-
 
 /*
  * MainFrame constructors
@@ -141,6 +98,9 @@ void MainFrame::CreateControls()
 
     m_Notebook = new wxAuiNotebook( itemFrame1, ID_AUINOTEBOOK, wxDefaultPosition, wxDefaultSize, wxAUI_NB_DEFAULT_STYLE|wxAUI_NB_TOP|wxNO_BORDER );
 
+    m_Notebook->Connect( wxEVT_AUINOTEBOOK_PAGE_CHANGED , wxAuiNotebookEventHandler( MainFrame::OnNotebook_Page_Changed  ), NULL, this );
+    m_Notebook->Connect( wxEVT_AUINOTEBOOK_PAGE_CHANGING, wxAuiNotebookEventHandler( MainFrame::OnNotebook_Page_Changing ), NULL, this );
+
     itemFrame1->GetAuiManager().AddPane(m_Notebook, wxAuiPaneInfo()
         .Name(_T("Pane1")).Centre().CaptionVisible(false).CloseButton(false).DestroyOnClose(false).Resizable(true).Floatable(false));
 
@@ -203,30 +163,25 @@ wxIcon MainFrame::GetIconResource( const wxString& name )
 
 void MainFrame::AddPagesFromGuiPlugins()
 {
-	wxModularCore * pluginManager = wxGetApp().GetPluginManager();
-	for(wxGuiPluginBaseList::Node * node = pluginManager->GetGuiPlugins().GetFirst();
-		node; node = node->GetNext())
+	wxModularCore *const pluginManager = wxGetApp().GetPluginManager();
+	for ( auto filename : pluginManager->GetGuiPluginFilenames() )
 	{
-		wxGuiPluginBase * plugin = node->GetData();
-		if(plugin)
-		{
-			wxWindow * page = plugin->CreatePanel(m_Notebook);
-			if(page)
-			{
-#if 1
-                // The following is a workaround to
-                // prevent a linker error on Linux
-                bool (wxAuiNotebook::*const mfp)(wxWindow*,wxString const&,bool,int) = &wxAuiNotebook::AddPage;
-                (m_Notebook->*mfp)(page, plugin->GetName(), false, -1);
-#else
-                // The next line causes a linker error on Linux
-                // because it looks for:
-                //     bool wxAuiNotebook::AddPage(wxWindow*,wxString const&,bool,wxBitmapBundle const&)
-                // instead of:
-                //     bool wxAuiNotebook::AddPage(wxWindow*,wxString const&,bool,int)
-				m_Notebook->AddPage(page, plugin->GetName());
-#endif
-			}
-		}
+        if ( filename.IsEmpty() ) continue;
+        wxWindow *const page = new TabWindowForPlugin(pluginManager, m_Notebook, filename);
+        auto const slash = wxFileName::GetPathSeparator();
+        std::size_t const pos = filename.find_last_of(slash);
+        if ( (-1 != pos) && (slash != filename.Last()) ) filename.erase(0u, pos + 1u);
+        m_Notebook->AddPage(page, filename, false, -1);
 	}
+}
+
+void MainFrame::OnNotebook_Page_Changing( wxAuiNotebookEvent& event )
+{
+    event.Skip();
+}
+
+void MainFrame::OnNotebook_Page_Changed( wxAuiNotebookEvent& event )
+{
+    auto *const p = dynamic_cast<TabWindowForPlugin*>( this->m_Notebook->GetPage(event.GetSelection()) );
+    if ( p ) p->ShowPluginWidgets();
 }

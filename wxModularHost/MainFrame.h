@@ -41,7 +41,9 @@ class wxAuiNotebook;
 class MainFrame: public wxFrame
 {    
     DECLARE_CLASS( MainFrame )
-    DECLARE_EVENT_TABLE()
+
+    void OnNotebook_Page_Changing( wxAuiNotebookEvent& event );
+    void OnNotebook_Page_Changed ( wxAuiNotebookEvent& event );
 
 public:
     /// Constructors

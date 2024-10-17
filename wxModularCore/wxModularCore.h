@@ -1,8 +1,12 @@
 #pragma once
-
+#include <cassert>        // assert
 #include <cstddef>        // size_t
+#include <map>            // map
 #include <memory>         // unique_ptr
 #include <regex>          // regex, regex_match
+#include <set>            // set
+#include <utility>        // pair
+#include <vector>         // vector
 #include <wx/dir.h>       // wxDir
 #include <wx/dynlib.h>    // wxDynamicLibrary
 #include <wx/filename.h>  // wxFileName
@@ -10,29 +14,17 @@
 #include "wxGuiPluginBase.h"
 #include "host_interaction.hpp"
 
-// We need to keep the list of loaded DLLs
-WX_DECLARE_LIST(wxDynamicLibrary, wxDynamicLibraryList);
-// We need to know which DLL produced the specific plugin object.
-WX_DECLARE_HASH_MAP(wxGuiPluginBase*, wxDynamicLibrary*, \
-					wxPointerHash, wxPointerEqual, \
-					wxGuiPluginToDllDictionary);
-// And separate list of loaded plugins for faster access.
-WX_DECLARE_LIST(wxGuiPluginBase, wxGuiPluginBaseList);
-
 class wxModularCoreSettings;
 
 class wxModularCore {
 protected:
-	wxGuiPluginToDllDictionary m_MapGuiPluginsDll;
-	wxGuiPluginBaseList m_GuiPlugins;
-	wxDynamicLibraryList m_DllList;
+	std::map< wxString, std::pair<wxDynamicLibrary, wxGuiPluginBase*> > mymap;
 	wxModularCoreSettings * m_Settings;
 	wxEvtHandler * m_Handler;
 
-	bool RegisterPlugin(wxGuiPluginBase *plugin, wxGuiPluginBaseList &list);
-	bool UnRegisterPlugin(wxGuiPluginBase *plugin, wxGuiPluginBaseList &container, wxGuiPluginToDllDictionary &pluginMap);
-	bool UnloadPlugins(wxGuiPluginBaseList & list, wxGuiPluginToDllDictionary &pluginDictionary);
-	bool LoadPlugins(wxString const &pluginsDirectory, wxGuiPluginBaseList &list, wxGuiPluginToDllDictionary &pluginDictionary);
+	bool UnloadPlugin(wxString const &filename);
+	bool UnloadAllPlugins(void);
+	bool DiscoverPlugins(wxString const &pluginsDirectory);
 
 public:
 	wxModularCore();
@@ -41,9 +33,27 @@ public:
 	wxString GetPluginsPath(bool forceProgramPath) const;
 	std::regex GetPluginRegex() const;
 
-	bool LoadAllPlugins(bool forceProgramPath);
-	bool UnloadAllPlugins();
+	wxGuiPluginBase *LoadPlugin(wxString const &);
+
+	bool DiscoverAllPlugins(bool forceProgramPath);
 	void Clear();
 
-	wxGuiPluginBaseList const &GetGuiPlugins(void) const;
+	std::vector<wxString> GetGuiPluginFilenames(void) const;
+	wxEvtHandler *GetEventHandler(void) { return this->m_Handler; }
+};
+
+class TabWindowForPlugin : public wxWindow {
+protected:
+    wxModularCore *pluginManager = nullptr;
+    wxWindow *child = nullptr;
+    wxGuiPluginBase *plugin = nullptr;
+    wxString const filename;
+public:
+    TabWindowForPlugin(wxModularCore *const arg_plugman, wxWindow *const parent, wxString const &arg_filename)
+      : wxWindow(parent, wxID_ANY), pluginManager(arg_plugman), filename(arg_filename)
+    {
+        assert( nullptr != pluginManager      );
+        assert( false   == filename.IsEmpty() );
+    }
+    void ShowPluginWidgets(void);
 };

@@ -78,7 +78,7 @@ bool wxModularHostApp::OnInit()
 	wxImage::AddHandler(new wxGIFHandler);
 #endif
 
-	if ( this->m_PluginManager ) this->m_PluginManager->LoadAllPlugins(true);
+	if ( this->m_PluginManager ) this->m_PluginManager->DiscoverAllPlugins(true);
 
 	MainFrame* mainWindow = new MainFrame( NULL );
 	mainWindow->Show(true);

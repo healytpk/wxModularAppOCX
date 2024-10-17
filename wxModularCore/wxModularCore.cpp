@@ -1,13 +1,12 @@
 #include "wxModularCore.h"
-#include "wxModularCoreSettings.h"
+#include <cassert>
 #include <wx/listimpl.cpp>
 #include <wx/init.h>                     // wxUninitialize
 #include <wx/stdpaths.h>                 // wxStandardPaths
+#include "wxModularCoreSettings.h"
 #include "wxGuiPluginBase.h"             // wxEVT_GUI_PLUGIN_INTEROP
 #include "host_interaction.hpp"
 #include "Auto.h"
-
-WX_DEFINE_LIST(wxDynamicLibraryList);
 
 static void const *ForPlugins_GetHostAPI( unsigned version, void (*addr_of_wxuninit)(void) ); // defined lower down in this file
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll);  // defined lower down in this file
@@ -15,8 +14,7 @@ static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const d
 wxModularCore::wxModularCore()
 	: m_Settings(new wxModularCoreSettings), m_Handler(new wxEvtHandler)
 {
-	// This will allow to delete all objects from this list automatically
-	m_DllList.DeleteContents(true);
+
 }
 
 wxModularCore::~wxModularCore()
@@ -26,57 +24,85 @@ wxModularCore::~wxModularCore()
 	wxDELETE(this->m_Settings);
 }
 
-bool wxModularCore::RegisterPlugin(wxGuiPluginBase *const plugin, wxGuiPluginBaseList &list)
+bool wxModularCore::UnloadPlugin(wxString const &filename)
 {
-    list.Append(plugin);
-    return true;
-}
+    auto const it = this->mymap.find(filename);
+    if ( this->mymap.end() == it ) return false;
+    Auto( this->mymap.erase(it) );
 
-bool wxModularCore::UnRegisterPlugin(wxGuiPluginBase *plugin, wxGuiPluginBaseList &container, wxGuiPluginToDllDictionary &pluginMap)
-{
-    typename wxGuiPluginBaseList::compatibility_iterator it = container.Find(plugin);
-    if ( nullptr == it ) return false;
+    wxDynamicLibrary  &dll    = it->second.first ;
+    wxGuiPluginBase  *&plugin = it->second.second;
 
-    wxDynamicLibrary *const dll = (wxDynamicLibrary *)pluginMap[plugin];
-
-    if ( nullptr != dll ) // Probably plugin was not loaded from dll
+    if ( false == dll.IsLoaded() )
     {
-        auto const pfnDeletePlugin = (DeletePlugin_function) dll->RawGetSymbol(wxT("DeletePlugin"));
-        if ( nullptr != pfnDeletePlugin )
-        {
-            pfnDeletePlugin(plugin);
-            container.Erase(it);
-            pluginMap.erase(plugin);
-            return true;
-        }
+        assert( nullptr == plugin );
+        return false;
     }
 
-    wxDELETE(plugin);
-    container.Erase(it);
+    if ( nullptr == plugin ) return false;
+
+    auto const pfnDeletePlugin = (DeletePlugin_function) dll.RawGetSymbol(wxT("DeletePlugin"));
+
+    if ( pfnDeletePlugin ) pfnDeletePlugin(plugin);
+    else wxDELETE(plugin);
 
     return true;
 }
 
-bool wxModularCore::UnloadPlugins(wxGuiPluginBaseList &list, wxGuiPluginToDllDictionary &pluginDictionary)
+bool wxModularCore::UnloadAllPlugins(void)
 {
     bool result = true;
-    wxGuiPluginBase *plugin = nullptr;
-    while ( list.GetFirst() && (plugin = list.GetFirst()->GetData()) )
+    while ( false == this->mymap.empty() )
     {
-        result &= UnRegisterPlugin(plugin, list, pluginDictionary);
+        wxString const &filename = this->mymap.cbegin()->first;
+        assert( false == filename.IsEmpty() );
+        result &= UnloadPlugin( filename );
     }
     return result;
 }
 
-bool wxModularCore::LoadPlugins(wxString const &pluginsDirectory, wxGuiPluginBaseList &list, wxGuiPluginToDllDictionary &pluginDictionary)
+wxGuiPluginBase *wxModularCore::LoadPlugin(wxString const &fileName)
 {
+    auto const it = this->mymap.find(fileName);
+    if ( this->mymap.end() == it ) return nullptr;
+
+    wxDynamicLibrary  &dll    = it->second.first ;
+    wxGuiPluginBase  *&plugin = it->second.second;
+
+    if ( false == dll.IsLoaded() )
+    {
+        assert( nullptr == plugin );
+        dll.Attach( wxDynamicLibrary::RawLoad(fileName) );
+    }
+
+    if ( false == dll.IsLoaded() ) return nullptr;
+
+    if ( nullptr != plugin ) return plugin;
+
+    auto const pfnCreatePlugin = (CreatePlugin_function) dll.RawGetSymbol( wxT("CreatePlugin") );
+
+    if ( pfnCreatePlugin )
+    {
+        plugin = pfnCreatePlugin(&ForPlugins_GetHostAPI);
+    }
+    else
+    {
+        plugin = ForHost_Process_ActiveX_Plugin(&dll);
+    }
+
+    return plugin;
+}
+
+bool wxModularCore::DiscoverPlugins(wxString const &pluginsDirectory)
+{
+    using std::regex_match;
     wxFileName fn;
     fn.AssignDir(pluginsDirectory);
     wxLogDebug(wxT("%s"), fn.GetFullPath().data());
     if ( false == fn.DirExists() ) return false;
     if ( false == wxDirExists(fn.GetFullPath()) ) return false;
     wxArrayString pluginPaths;
-    wxDir::GetAllFiles(fn.GetFullPath(), &pluginPaths, wxEmptyString, wxDIR_FILES|wxDIR_DIRS|wxDIR_HIDDEN);
+    wxDir::GetAllFiles(fn.GetFullPath(), &pluginPaths, wxEmptyString, wxDIR_FILES /*|wxDIR_DIRS*/ |wxDIR_HIDDEN);
 
     // ==== The 'pluginPaths' now contains all of the
     // ==== filenames in the directory, so we iterate
@@ -86,45 +112,12 @@ bool wxModularCore::LoadPlugins(wxString const &pluginsDirectory, wxGuiPluginBas
     {
         // Hopefully converting the wxString to an std::string
         // will leave us with a string that we can do regex on
-        if ( false == std::regex_match( pluginPaths[i].ToStdString(), this->GetPluginRegex() ) )
-        {
-            pluginPaths.RemoveAt( i-- );
-        }
+        wxString const &filename = pluginPaths[i];
+        if ( !regex_match( filename.ToStdString(), this->GetPluginRegex() ) ) continue;
+        this->mymap[filename];
     }
 
-    auto const yes = [this,&list,&pluginDictionary]( std::unique_ptr<wxDynamicLibrary> &pL, wxGuiPluginBase *const pP )
-        {
-                this->RegisterPlugin(pP, list);
-                this->m_DllList.Append( pL.get() );
-                auto const p = pL.release();
-                pluginDictionary[pP] = p;
-        };
-
-    for ( unsigned i = 0u; i < pluginPaths.GetCount(); ++i )
-    {
-        wxGuiPluginBase *plugin = nullptr;
-
-        wxString fileName = pluginPaths[i];
-        std::unique_ptr<wxDynamicLibrary> dll( new wxDynamicLibrary(fileName) );
-        if ( !dll || !dll->IsLoaded() ) continue;
-
-        auto const pfnCreatePlugin = (CreatePlugin_function) dll->RawGetSymbol( wxT("CreatePlugin") );
-
-        if ( pfnCreatePlugin )
-        {
-            plugin = pfnCreatePlugin(&ForPlugins_GetHostAPI);
-            if ( nullptr == plugin ) continue;
-            yes(dll, plugin);
-        }
-        else
-        {
-            plugin = ForHost_Process_ActiveX_Plugin( dll.get() );
-            if ( nullptr == plugin ) continue;
-            yes(dll, plugin);
-        }
-    }
-
-    return true;
+    return false == this->mymap.empty();
 }
 
 void wxModularCore::Clear()
@@ -162,32 +155,59 @@ std::regex wxModularCore::GetPluginRegex() const
 #endif
 }
 
-WX_DEFINE_LIST(wxGuiPluginBaseList);
-
-bool wxModularCore::LoadAllPlugins(bool forceProgramPath)
+bool wxModularCore::DiscoverAllPlugins(bool const forceProgramPath)
 {
 	wxString pluginsRootDir = GetPluginsPath(forceProgramPath);
 	bool result = true;
-	result &= LoadPlugins(pluginsRootDir, m_GuiPlugins, m_MapGuiPluginsDll);
-	// You can implement other logic which takes in account
-	// the result of LoadPlugins() calls
-	for(wxGuiPluginBaseList::Node * node = m_GuiPlugins.GetFirst();
-		node; node = node->GetNext())
-	{
-		wxGuiPluginBase * plugin = node->GetData();
-		plugin->SetEventHandler(m_Handler);
-	}
-	return true;
+	result &= DiscoverPlugins(pluginsRootDir);
+	return result;
 }
 
-bool wxModularCore::UnloadAllPlugins()
+std::vector<wxString> wxModularCore::GetGuiPluginFilenames(void) const
 {
-	return UnloadPlugins(m_GuiPlugins, m_MapGuiPluginsDll);
+	std::vector<wxString> retval;
+	for ( auto const &e : this->mymap ) retval.emplace_back(e.first);
+	return retval;
 }
 
-wxGuiPluginBaseList const &wxModularCore::GetGuiPlugins() const
+void TabWindowForPlugin::ShowPluginWidgets(void)
 {
-	return m_GuiPlugins;
+    auto const Arrange  =
+      [this]()
+      {
+        assert( nullptr != this->child );
+        auto *const bsizer = new wxBoxSizer(wxVERTICAL);
+        bsizer->AddStretchSpacer(1);
+        bsizer->Add( this->child, 1, wxALIGN_CENTRE_HORIZONTAL );
+        bsizer->AddStretchSpacer(1);
+        this->SetSizer(bsizer);
+        bsizer->Fit(this->child);
+        this->Layout();
+      };
+
+    Auto(
+        if ( nullptr == this->child )
+        {
+            this->child = new wxStaticText(this, wxID_STATIC, _("Failed to load plugin."));
+            Arrange();
+            return;
+        }
+        auto *const phandler = this->child->GetEventHandler();
+        if ( nullptr == phandler ) return;
+        wxShowEvent e( this->child->GetId(), true );
+        e.SetEventObject( this->child );
+        phandler->AddPendingEvent(e);
+    );
+    if ( nullptr != this->child ) return;
+    if ( nullptr == this->plugin )
+    {
+        this->plugin = this->pluginManager->LoadPlugin(this->filename);
+        if ( nullptr == plugin ) return;
+        plugin->SetEventHandler( this->pluginManager->GetEventHandler() );
+    }
+    this->child = this->plugin->CreatePanel(this);
+    if ( nullptr == this->child ) return;
+    Arrange();
 }
 
 // Global objects
