@@ -180,7 +180,8 @@ void TabWindowForPlugin::ShowPluginWidgets(void)
     auto const Arrange  =
       [this](int const flags)
       {
-        assert( nullptr != this->child );
+        assert( nullptr != this->child  );
+        assert( nullptr != this->plugin );
         auto *const bsizer = new wxBoxSizer(wxVERTICAL);
         if ( this->plugin->ShouldInsertSpacers() ) bsizer->AddStretchSpacer(-1);
         bsizer->Add(this->child, 1, flags);
