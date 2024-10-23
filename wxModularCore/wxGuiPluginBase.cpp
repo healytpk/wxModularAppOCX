@@ -36,7 +36,8 @@ wxWindow *wxGuiPluginOCX::CreatePanel(wxWindow *const parent)
     assert( nullptr != this->p_IOleObject );
     wxPanel *const mypanel = new(std::nothrow) wxPanel(parent, wxID_ANY);
     if ( nullptr == mypanel ) return nullptr;
-    auto const retval = DynamicallyLoaded_AtlAxAttachControl( this->p_IOleObject, mypanel->GetHandle() );
+    std::int32_t retval = 666;
+    try { retval = DynamicallyLoaded_AtlAxAttachControl( this->p_IOleObject, mypanel->GetHandle() ); } catch(...){}
     if ( S_OK == retval ) return mypanel;
     delete mypanel;
     return nullptr;
