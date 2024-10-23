@@ -44,4 +44,26 @@ wxWindow *wxGuiPluginOCX::CreatePanel(wxWindow *const parent)
     return nullptr;
 }
 
+wxGuiPluginHWND::wxGuiPluginHWND(FuncPtr_t const arg) : pfnPopulate(arg)
+{
+    assert( nullptr != arg );
+}
+
+wxGuiPluginHWND::~wxGuiPluginHWND(void)
+{
+}
+
+wxWindow *wxGuiPluginHWND::CreatePanel(wxWindow *const parent)
+{
+    assert( nullptr != parent );
+    wxPanel *const mypanel = new(std::nothrow) wxPanel(parent, wxID_ANY);
+    if ( nullptr == mypanel ) return nullptr;
+    bool retval = false;
+    try { retval = pfnPopulate( mypanel->GetHandle() ); }
+    catch(...){ retval = false; }
+    if ( retval ) return mypanel;
+    delete mypanel;
+    return nullptr;
+}
+
 #endif  // ifdef __WXMSW__

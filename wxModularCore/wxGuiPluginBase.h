@@ -44,4 +44,26 @@ public:
 	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
 };
 
+class wxGuiPluginHWND : public wxGuiPluginBase {
+public:
+	typedef bool (__stdcall *FuncPtr_t)(HWND);
+
+protected:
+	FuncPtr_t const pfnPopulate;
+
+public:
+	virtual bool ShouldInsertSpacers(void) const override { return false; }
+
+	wxGuiPluginHWND(FuncPtr_t);
+	~wxGuiPluginHWND(void) override;
+
+	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
+	virtual void SetEventHandler(wxEvtHandler*) override {}
+
+	virtual wxString GetName(void) const override { return "Name HWND Plugin 0"; }
+	virtual wxString GetId(void) const override   { return "ID   HWND Plugin 0"; }
+
+	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
+};
+
 #endif
