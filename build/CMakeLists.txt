@@ -119,3 +119,8 @@ add_subdirectory (../SampleGuiPlugin1
 	../../SampleGuiPlugin1/${OS_BASE_NAME}${LIB_SUFFIX})
 add_subdirectory (../SampleGuiPlugin2 
 	../../SampleGuiPlugin2/${OS_BASE_NAME}${LIB_SUFFIX})
+
+#if(WIN32)
+#add_subdirectory (../mswplugin_csharp
+#	../../mswplugin_csharp/${OS_BASE_NAME}${LIB_SUFFIX})
+#endif(WIN32)
