@@ -9,6 +9,7 @@ class wxGuiPluginBase : public wxObject {
 public:
 	virtual ~wxGuiPluginBase() = default;
 
+	virtual bool ShouldInsertSpacers(void) const = 0;
 	virtual wxString GetName() const = 0;
 	virtual wxString GetId() const = 0;
 	virtual wxWindow * CreatePanel(wxWindow * parent) = 0;
@@ -29,6 +30,7 @@ protected:
 	void *const p_IOleObject;
 
 public:
+	virtual bool ShouldInsertSpacers(void) const override { return false; }
 
 	wxGuiPluginOCX(void *arg_p_IOleObject);
 	~wxGuiPluginOCX(void) override;

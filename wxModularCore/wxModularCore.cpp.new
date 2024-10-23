@@ -10,6 +10,7 @@
 
 static void const *ForPlugins_GetHostAPI( unsigned version, void (*addr_of_wxuninit)(void) ); // defined lower down in this file
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll);  // defined lower down in this file
+static wxGuiPluginBase* ForHost_Process_HWND_Plugin   (wxDynamicLibrary *const dll);  // defined lower down in this file
 
 wxModularCore::wxModularCore()
 	: m_Settings(new wxModularCoreSettings), m_Handler(new wxEvtHandler)
@@ -85,9 +86,13 @@ wxGuiPluginBase *wxModularCore::LoadPlugin(wxString const &fileName)
     {
         plugin = pfnCreatePlugin(&ForPlugins_GetHostAPI);
     }
-    else
-    {
-        plugin = ForHost_Process_ActiveX_Plugin(&dll);
+    else if ( plugin = ForHost_Process_ActiveX_Plugin(&dll) )
+	{
+		/* nothing to do in here */
+    }
+    else if ( plugin = ForHost_Process_HWND_Plugin(&dll) )
+	{
+		/* nothing to do in here */
     }
 
     return plugin;
@@ -401,9 +406,23 @@ static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const d
 	return nullptr;
 }
 
+static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *const dll)
+{
+	auto const pfnPopulatePanelHWND =
+		(bool(__stdcall*)(HWND)) dll->RawGetSymbol("PopulatePanelHWND");
+
+	if ( nullptr == pfnPopulatePanelHWND ) return nullptr;
+
+	auto *const plugin = new(std::nothrow) wxGuiPluginHWND(pfnPopulatePanelHWND);
+	if ( nullptr != plugin ) return plugin;
+
+	return nullptr;
+}
+
 #else
 
 // For all platforms other than MS-Windows
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll) { return nullptr; }
+static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *dll) { return nullptr; }
 
 #endif // ifdef __WXMSW__

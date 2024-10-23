@@ -7,6 +7,7 @@ class SampleGuiPlugin1 : public wxGuiPluginBase {
 protected:
 	wxEvtHandler *m_Handler;
 public:
+	virtual bool ShouldInsertSpacers(void) const override { return true; }
 	SampleGuiPlugin1() noexcept = default;
 	SampleGuiPlugin1(wxEvtHandler *handler);
 	virtual wxString GetName() const override;
