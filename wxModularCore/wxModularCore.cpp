@@ -481,8 +481,8 @@ static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dl
 #else
 
 // For all platforms other than MS-Windows
-static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll) { return nullptr; }
-static wxGuiPluginBase *ForHost_Process_HWND_Plugin   (wxDynamicLibrary *dll) { return nullptr; }
-static wxGuiPluginBase *ForHost_Process_DotNet_Plugin (wxDynamicLibrary *dll) { return nullptr; }
+static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll, wxString const &fileName) { return nullptr; }
+static wxGuiPluginBase *ForHost_Process_HWND_Plugin   (wxDynamicLibrary *dll, wxString const &fileName) { return nullptr; }
+static wxGuiPluginBase *ForHost_Process_DotNet_Plugin (wxDynamicLibrary *dll, wxString const &fileName) { return nullptr; }
 
 #endif // ifdef __WXMSW__
