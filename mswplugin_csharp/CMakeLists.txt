@@ -1,6 +1,8 @@
-add_library("mswplugin_csharp" mswplugin_csharp.cs)
+set(TOP_LEVEL_PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 
-set_target_properties("mswplugin_csharp" PROPERTIES LINKER_LANGUAGE CSharp)
+project("mswplugin_csharp" CSharp)
+
+add_library("mswplugin_csharp" mswplugin_csharp.cs)
 
 set_property(TARGET "mswplugin_csharp" PROPERTY DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
 set_property(TARGET "mswplugin_csharp" PROPERTY WIN32_EXECUTABLE FALSE)
@@ -21,4 +23,4 @@ set_property(TARGET "mswplugin_csharp" PROPERTY VS_DOTNET_REFERENCES
         "System.Xml.Linq"
         "WindowsBase")
 
-set_target_properties("mswplugin_csharp" PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+set_target_properties("mswplugin_csharp" PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TOP_LEVEL_PROJECT_SOURCE_DIR}/bin)
