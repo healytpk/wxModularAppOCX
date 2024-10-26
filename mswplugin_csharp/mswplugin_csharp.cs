@@ -2,8 +2,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-public class Plugin
-{
+public class Plugin {
+
     // P/Invoke to set the parent window
     [DllImport("user32.dll", SetLastError = true)]
     static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
@@ -14,7 +14,7 @@ public class Plugin
     {
         // Create a new Form object
         Form form = new Form {
-            Text = "Embedded Plugin",
+            Text = "Temperature Converter",
             FormBorderStyle = FormBorderStyle.None, // Make the form borderless
             TopLevel = false // Set it as a child window
         };
@@ -22,18 +22,30 @@ public class Plugin
         // Set the parent window of the form to the HWND passed from C++
         SetParent(form.Handle, hWndParent);
 
-        // Create some widgets like text boxes and buttons
-        TextBox textBox = new TextBox { Text = "Monkey!", Dock = DockStyle.Top };
-        Button button = new Button { Text = "Click Me", Dock = DockStyle.Bottom };
+        // Create controls
+        Label fahrenheitLabel = new Label { Text = "Temperature in Fahrenheit:", Dock = DockStyle.Top };
+        TextBox fahrenheitTextBox = new TextBox { Dock = DockStyle.Top };
+        Button convertButton = new Button { Text = "Convert to Celsius", Dock = DockStyle.Top };
+        Label celsiusLabel = new Label { Dock = DockStyle.Top };
+
+        // Add event handler for button click
+        convertButton.Click += (sender, e) =>
+        {
+            if (double.TryParse(fahrenheitTextBox.Text, out double fahrenheit))
+            {
+                double celsius = (fahrenheit - 32) * 5 / 9;
+                celsiusLabel.Text = $"Temperature in Celsius: {celsius:F2}"; // Display the result
+            }
+        };
 
         // Add the controls to the form
-        form.Controls.Add(textBox);
-        form.Controls.Add(button);
+        form.Controls.Add(celsiusLabel);
+        form.Controls.Add(convertButton);
+        form.Controls.Add(fahrenheitTextBox);
+        form.Controls.Add(fahrenheitLabel);
 
         // Show the form inside the passed window
         form.Show();
-
-        MessageBox.Show("I like monkeys!");
 
         return true;
     }
