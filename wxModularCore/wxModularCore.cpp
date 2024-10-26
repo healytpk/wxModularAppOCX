@@ -9,9 +9,9 @@
 #include "Auto.h"
 
 static void const *ForPlugins_GetHostAPI( unsigned version, void (*addr_of_wxuninit)(void) ); // defined lower down in this file
-static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll);  // defined lower down in this file
-static wxGuiPluginBase* ForHost_Process_HWND_Plugin   (wxDynamicLibrary *const dll);  // defined lower down in this file
-static wxGuiPluginBase* ForHost_Process_DotNet_Plugin (wxDynamicLibrary* const dll);  // defined lower down in this file
+static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll, wxString const &fileName);  // defined lower down in this file
+static wxGuiPluginBase* ForHost_Process_HWND_Plugin   (wxDynamicLibrary *const dll, wxString const &fileName);  // defined lower down in this file
+static wxGuiPluginBase* ForHost_Process_DotNet_Plugin (wxDynamicLibrary* const dll, wxString const &fileName);  // defined lower down in this file
 
 wxModularCore::wxModularCore()
 	: m_Settings(new wxModularCoreSettings), m_Handler(new wxEvtHandler)
@@ -87,11 +87,11 @@ wxGuiPluginBase *wxModularCore::LoadPlugin(wxString const &fileName)
     {
         plugin = pfnCreatePlugin(&ForPlugins_GetHostAPI);
     }
-    else if ( plugin = ForHost_Process_ActiveX_Plugin(&dll) )
+    else if ( plugin = ForHost_Process_ActiveX_Plugin(&dll, fileName) )
     {
         /* nothing to do in here */
     }
-    else if ( plugin = ForHost_Process_DotNet_Plugin(&dll) )
+    else if ( plugin = ForHost_Process_DotNet_Plugin(&dll, fileName) )
     {
         /* nothing to do in here */
     }
@@ -356,7 +356,7 @@ static CLSID Get_First_ActiveX_Control(TCHAR const *const lib)
 	return CLSID_NULL;
 }
 
-static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll)
+static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
 {
 	// If control reaches here, we couldn't find 'CreatePlugin'
 	// inside the dynamically-loaded library. Now let's check
@@ -409,7 +409,7 @@ static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const d
 	return nullptr;
 }
 
-static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *const dll)
+static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
 {
 	auto const pfnPopulatePanelHWND =
 		(bool(__stdcall*)(HWND)) dll->RawGetSymbol("PopulatePanelHWND");
@@ -422,11 +422,11 @@ static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *const dll)
 	return nullptr;
 }
 
-static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dll)
+static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
 {
 	assert( wxIsMainThread() );
 	static wxDynamicLibrary dllcoree;
-
+	bool success = false;
 	typedef HRESULT (__stdcall *FuncPtr_t)(REFCLSID, REFIID, LPVOID*);
 	FuncPtr_t pfnCLRCreateInstance = nullptr;
 
@@ -449,28 +449,32 @@ static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dl
 
 	pfnCLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (LPVOID*)&metaHost);
 	if ( nullptr == metaHost ) return nullptr;
+	Auto( if ( false == success ) metaHost->Release() );
 	metaHost->GetRuntime(L"v4.0.30319", IID_ICLRRuntimeInfo, (LPVOID*)&runtimeInfo);
-	if ( nullptr == runtimeInfo ) { metaHost->Release(); return nullptr; }
+	if ( nullptr == runtimeInfo ) return nullptr;
+	Auto( if ( false == success ) runtimeInfo->Release() );
 	runtimeInfo->GetInterface(CLSID_CLRRuntimeHost, IID_ICLRRuntimeHost, (LPVOID*)&runtimeHost);
-	if ( nullptr == runtimeHost ) { runtimeInfo->Release(); metaHost->Release(); return nullptr; }
+	if ( nullptr == runtimeHost ) return nullptr;
+	Auto( if ( false == success ) runtimeHost->Release() );
 	runtimeHost->Start();
 
-	HRESULT res = runtimeHost->ExecuteInDefaultAppDomain(
-		L"mswplugin_csharp.dll",
-		L"mswplugin_csharp.Plugin",
+	std::wstring const name = wxFileName(fileName).GetName().ToStdWstring();
+	if ( name.empty() ) return nullptr;
+
+	HRESULT const res = runtimeHost->ExecuteInDefaultAppDomain(
+		(name + L".dll"   ).c_str(),
+		(name + L".Plugin").c_str(),
 		L"QueryPlugin",
 		L"",
 		&pReturnValue);
 
-	if ( S_OK != res || 666 != pReturnValue )
-	{
-		runtimeInfo->Release();
-		metaHost->Release();
-		runtimeHost->Release();
-		return nullptr;
-	}
+	if ( S_OK != res || 666 != pReturnValue ) return nullptr;
 
-	return new wxGuiPluginDotNet(metaHost,runtimeInfo,runtimeHost);
+	auto *const p =  new wxGuiPluginDotNet(metaHost,runtimeInfo,runtimeHost);
+	if ( nullptr == p ) return nullptr;
+
+	success = true;
+	return p;
 }
 
 
