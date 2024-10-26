@@ -181,11 +181,11 @@ void TabWindowForPlugin::ShowPluginWidgets(void)
       [this](int const flags)
       {
         assert( nullptr != this->child  );
-        assert( nullptr != this->plugin );
+        bool const spacers = (nullptr == this->plugin) || (this->plugin && this->plugin->ShouldInsertSpacers());
         auto *const bsizer = new wxBoxSizer(wxVERTICAL);
-        if ( this->plugin->ShouldInsertSpacers() ) bsizer->AddStretchSpacer(-1);
+        if ( spacers ) bsizer->AddStretchSpacer(-1);
         bsizer->Add(this->child, 1, flags);
-        if ( this->plugin->ShouldInsertSpacers() ) bsizer->AddStretchSpacer(-1);
+        if ( spacers ) bsizer->AddStretchSpacer(-1);
         this->SetSizer(bsizer);
         bsizer->Fit(this->child);
         this->Layout();
