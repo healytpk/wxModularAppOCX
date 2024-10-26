@@ -66,4 +66,29 @@ public:
 	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
 };
 
+class ICLRMetaHost;
+class ICLRRuntimeInfo;
+class ICLRRuntimeHost;
+
+class wxGuiPluginDotNet : public wxGuiPluginBase {
+protected:
+	ICLRMetaHost *const metaHost = nullptr;
+	ICLRRuntimeInfo *const runtimeInfo = nullptr;
+	ICLRRuntimeHost *const runtimeHost = nullptr;
+
+public:
+	virtual bool ShouldInsertSpacers(void) const override { return false; }
+
+	wxGuiPluginDotNet(ICLRMetaHost*,ICLRRuntimeInfo*,ICLRRuntimeHost*);
+	~wxGuiPluginDotNet(void) override;
+
+	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
+	virtual void SetEventHandler(wxEvtHandler*) override {}
+
+	virtual wxString GetName(void) const override { return "Name DotNet Plugin 0"; }
+	virtual wxString GetId(void) const override   { return "ID   DotNet Plugin 0"; }
+
+	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
+};
+
 #endif

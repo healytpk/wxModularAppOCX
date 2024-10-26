@@ -11,6 +11,7 @@
 static void const *ForPlugins_GetHostAPI( unsigned version, void (*addr_of_wxuninit)(void) ); // defined lower down in this file
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll);  // defined lower down in this file
 static wxGuiPluginBase* ForHost_Process_HWND_Plugin   (wxDynamicLibrary *const dll);  // defined lower down in this file
+static wxGuiPluginBase* ForHost_Process_DotNet_Plugin (wxDynamicLibrary* const dll);  // defined lower down in this file
 
 wxModularCore::wxModularCore()
 	: m_Settings(new wxModularCoreSettings), m_Handler(new wxEvtHandler)
@@ -90,7 +91,7 @@ wxGuiPluginBase *wxModularCore::LoadPlugin(wxString const &fileName)
     {
         /* nothing to do in here */
     }
-    else if ( plugin = ForHost_Process_HWND_Plugin(&dll) )
+    else if ( plugin = ForHost_Process_DotNet_Plugin(&dll) )
     {
         /* nothing to do in here */
     }
@@ -280,6 +281,7 @@ static void const *ForPlugins_GetHostAPI( unsigned const version, void (*const a
 #ifdef __WXMSW__
 
 #include <guiddef.h>                     // CLSID, CLSID_NULL, REFCLSID, REFIID
+#include <metahost.h>                    // ICLRMetaHost, ICLRRuntimeInfo, ICLRRuntimeHost
 #include <oaidl.h>                       // ITypeLib
 #include <objbase.h>                     // CoInitializeEx
 #include <oleauto.h>                     // LoadTypeLib
@@ -420,10 +422,63 @@ static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *const dll)
 	return nullptr;
 }
 
+static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dll)
+{
+	assert( wxIsMainThread() );
+	static wxDynamicLibrary dllcoree;
+
+	typedef HRESULT (__stdcall *FuncPtr_t)(REFCLSID, REFIID, LPVOID*);
+	FuncPtr_t pfnCLRCreateInstance = nullptr;
+
+	if ( false == dllcoree.IsLoaded() )
+	{
+		dllcoree.Attach( wxDynamicLibrary::RawLoad("mscoree.dll") );
+		if ( false == dllcoree.IsLoaded() ) return nullptr;
+		pfnCLRCreateInstance = (FuncPtr_t)dllcoree.RawGetSymbol("CLRCreateInstance");
+		if ( nullptr == pfnCLRCreateInstance )
+		{
+			dllcoree.Unload();
+			return nullptr;
+		}
+	}
+
+	ICLRMetaHost    *metaHost    = nullptr;
+	ICLRRuntimeInfo *runtimeInfo = nullptr;
+	ICLRRuntimeHost *runtimeHost = nullptr;
+	DWORD pReturnValue = 0;
+
+	pfnCLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (LPVOID*)&metaHost);
+	if ( nullptr == metaHost ) return nullptr;
+	metaHost->GetRuntime(L"v4.0.30319", IID_ICLRRuntimeInfo, (LPVOID*)&runtimeInfo);
+	if ( nullptr == runtimeInfo ) { metaHost->Release(); return nullptr; }
+	runtimeInfo->GetInterface(CLSID_CLRRuntimeHost, IID_ICLRRuntimeHost, (LPVOID*)&runtimeHost);
+	if ( nullptr == runtimeHost ) { runtimeInfo->Release(); metaHost->Release(); return nullptr; }
+	runtimeHost->Start();
+
+	HRESULT res = runtimeHost->ExecuteInDefaultAppDomain(
+		L"mswplugin_csharp.dll",
+		L"mswplugin_csharp.Plugin",
+		L"QueryPlugin",
+		L"",
+		&pReturnValue);
+
+	if ( S_OK != res || 666 != pReturnValue )
+	{
+		runtimeInfo->Release();
+		metaHost->Release();
+		runtimeHost->Release();
+		return nullptr;
+	}
+
+	return new wxGuiPluginDotNet(metaHost,runtimeInfo,runtimeHost);
+}
+
+
 #else
 
 // For all platforms other than MS-Windows
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll) { return nullptr; }
 static wxGuiPluginBase *ForHost_Process_HWND_Plugin   (wxDynamicLibrary *dll) { return nullptr; }
+static wxGuiPluginBase *ForHost_Process_DotNet_Plugin (wxDynamicLibrary *dll) { return nullptr; }
 
 #endif // ifdef __WXMSW__
