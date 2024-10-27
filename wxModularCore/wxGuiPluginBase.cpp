@@ -68,9 +68,10 @@ wxWindow *wxGuiPluginHWND::CreatePanel(wxWindow *const parent)
     return nullptr;
 }
 
-wxGuiPluginDotNet::wxGuiPluginDotNet(ICLRMetaHost *const arg_metaHost, ICLRRuntimeInfo *const arg_runtimeInfo, ICLRRuntimeHost *const arg_runtimeHost)
-  :  metaHost(arg_metaHost), runtimeInfo(arg_runtimeInfo), runtimeHost(arg_runtimeHost)
+wxGuiPluginDotNet::wxGuiPluginDotNet(std::wstring_view const arg_name, ICLRMetaHost *const arg_metaHost, ICLRRuntimeInfo *const arg_runtimeInfo, ICLRRuntimeHost *const arg_runtimeHost)
+  : name(arg_name), metaHost(arg_metaHost), runtimeInfo(arg_runtimeInfo), runtimeHost(arg_runtimeHost)
 {
+    assert( false   == name.empty());
     assert( nullptr != metaHost    );
     assert( nullptr != runtimeInfo );
     assert( nullptr != runtimeHost );
@@ -88,30 +89,22 @@ wxWindow *wxGuiPluginDotNet::CreatePanel(wxWindow *const parent)
     assert( nullptr != parent );
     wxPanel *const mypanel = new(std::nothrow) wxPanel(parent, wxID_ANY);
     if ( nullptr == mypanel ) return nullptr;
-    bool retval = false;
+    bool success = false;
     try
     {
-        DWORD pReturnValue = 0u;
+        DWORD retval_from_DotNet_method = 0u;
 
         HRESULT const res = runtimeHost->ExecuteInDefaultAppDomain(
-            L"mswplugin_csharp.dll",
-            L"mswplugin_csharp.Plugin",
+            (name + L".dll"   ).c_str(),
+            (name + L".Plugin").c_str(),
             L"PopulatePanelHWND",
             std::to_wstring( (std::uintptr_t)mypanel->GetHandle() ).c_str(),
-            &pReturnValue);
+            &retval_from_DotNet_method);
 
-        if ( S_OK != res || 667 != pReturnValue )
-        {
-            runtimeInfo->Release();
-            metaHost->Release();
-            runtimeHost->Release();
-            return nullptr;
-        }
-
-        retval = true;
+        if ( (S_OK == res) && (667 == retval_from_DotNet_method) ) success = true;
     }
-    catch(...){ retval = false; }
-    if ( retval ) return mypanel;
+    catch(...){ success = false; }
+    if ( success ) return mypanel;
     delete mypanel;
     return nullptr;
 }

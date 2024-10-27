@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>           // wstring
+#include <string_view>      // wstring_view
 #include <wx/wx.h>
 #include <wx/object.h>      // wxObject
 #include <wx/window.h>      // wxWindow
@@ -72,6 +74,7 @@ class ICLRRuntimeHost;
 
 class wxGuiPluginDotNet : public wxGuiPluginBase {
 protected:
+	std::wstring const name;
 	ICLRMetaHost *const metaHost = nullptr;
 	ICLRRuntimeInfo *const runtimeInfo = nullptr;
 	ICLRRuntimeHost *const runtimeHost = nullptr;
@@ -79,7 +82,7 @@ protected:
 public:
 	virtual bool ShouldInsertSpacers(void) const override { return false; }
 
-	wxGuiPluginDotNet(ICLRMetaHost*,ICLRRuntimeInfo*,ICLRRuntimeHost*);
+	wxGuiPluginDotNet(std::wstring_view,ICLRMetaHost*,ICLRRuntimeInfo*,ICLRRuntimeHost*);
 	~wxGuiPluginDotNet(void) override;
 
 	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }

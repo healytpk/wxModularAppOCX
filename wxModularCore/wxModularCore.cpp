@@ -445,7 +445,7 @@ static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dl
 	ICLRMetaHost    *metaHost    = nullptr;
 	ICLRRuntimeInfo *runtimeInfo = nullptr;
 	ICLRRuntimeHost *runtimeHost = nullptr;
-	DWORD pReturnValue = 0;
+	DWORD retval_from_DotNet_method = 0;
 
 	pfnCLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (LPVOID*)&metaHost);
 	if ( nullptr == metaHost ) return nullptr;
@@ -466,11 +466,11 @@ static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dl
 		(name + L".Plugin").c_str(),
 		L"QueryPlugin",
 		L"",
-		&pReturnValue);
+		&retval_from_DotNet_method);
 
-	if ( S_OK != res || 666 != pReturnValue ) return nullptr;
+	if ( (S_OK != res) || (666 != retval_from_DotNet_method) ) return nullptr;
 
-	auto *const p =  new wxGuiPluginDotNet(metaHost,runtimeInfo,runtimeHost);
+	auto *const p =  new wxGuiPluginDotNet(name,metaHost,runtimeInfo,runtimeHost);
 	if ( nullptr == p ) return nullptr;
 
 	success = true;
