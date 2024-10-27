@@ -68,19 +68,15 @@ wxWindow *wxGuiPluginHWND::CreatePanel(wxWindow *const parent)
     return nullptr;
 }
 
-wxGuiPluginDotNet::wxGuiPluginDotNet(std::wstring_view const arg_name, ICLRMetaHost *const arg_metaHost, ICLRRuntimeInfo *const arg_runtimeInfo, ICLRRuntimeHost *const arg_runtimeHost)
-  : name(arg_name), metaHost(arg_metaHost), runtimeInfo(arg_runtimeInfo), runtimeHost(arg_runtimeHost)
+wxGuiPluginDotNet::wxGuiPluginDotNet(std::wstring_view const arg_name, ICLRRuntimeHost *const arg_runtimeHost)
+  : name(arg_name), runtimeHost(arg_runtimeHost)
 {
     assert( false   == name.empty());
-    assert( nullptr != metaHost    );
-    assert( nullptr != runtimeInfo );
     assert( nullptr != runtimeHost );
 }
 
 wxGuiPluginDotNet::~wxGuiPluginDotNet(void)
 {
-    if ( runtimeInfo ) runtimeInfo->Release();
-    if ( metaHost    ) metaHost   ->Release();
     if ( runtimeHost ) runtimeHost->Release();
 }
 

@@ -82,7 +82,7 @@ protected:
 public:
 	virtual bool ShouldInsertSpacers(void) const override { return false; }
 
-	wxGuiPluginDotNet(std::wstring_view,ICLRMetaHost*,ICLRRuntimeInfo*,ICLRRuntimeHost*);
+	wxGuiPluginDotNet(std::wstring_view,ICLRRuntimeHost*);
 	~wxGuiPluginDotNet(void) override;
 
 	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }

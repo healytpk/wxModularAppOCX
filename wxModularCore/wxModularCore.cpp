@@ -1,5 +1,7 @@
 #include "wxModularCore.h"
 #include <cassert>
+#include <memory>                        // unique_ptr
+#include <mutex>                         // call_once
 #include <wx/listimpl.cpp>
 #include <wx/init.h>                     // wxUninitialize
 #include <wx/stdpaths.h>                 // wxStandardPaths
@@ -422,44 +424,77 @@ static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *const dll,
 	return nullptr;
 }
 
+template<typename T>
+class unique_releaser : public std::unique_ptr< T, void(*)(T*) noexcept > {
+protected:
+	static void unique_releaser_deleter(T *const arg) noexcept { try { arg->Release(); }catch(...){} }
+public:
+	unique_releaser(T *const arg = nullptr) noexcept
+	  : std::unique_ptr< T, void(*)(T*) noexcept >(arg, &unique_releaser_deleter) {}
+};
+
+static ICLRRuntimeHost *GetDotNet(void) noexcept  // thread-safe
+{
+	static unique_releaser<ICLRRuntimeHost> runtimeHost;
+	static unique_releaser<ICLRRuntimeInfo> runtimeInfo;
+	static unique_releaser<ICLRMetaHost   > metaHost   ;
+	static wxDynamicLibrary dllcoree;
+	static std::once_flag myflag;
+
+	std::call_once(myflag,[&]
+	{
+		bool success = false;
+		[&]()
+		{
+			assert( nullptr == runtimeHost         );
+			assert( nullptr == runtimeInfo         );
+			assert( nullptr == metaHost            );
+			assert( false   == dllcoree.IsLoaded() );
+			typedef HRESULT (__stdcall *FuncPtr_t)(REFCLSID, REFIID, LPVOID*);
+			dllcoree.Attach( wxDynamicLibrary::RawLoad("mscoree.dll") );
+			if ( false == dllcoree.IsLoaded() ) return;
+			auto const pfnCLRCreateInstance = (FuncPtr_t)dllcoree.RawGetSymbol("CLRCreateInstance");
+			if ( nullptr == pfnCLRCreateInstance ) return;
+
+			ICLRMetaHost    *VmetaHost    = nullptr;
+			ICLRRuntimeInfo *VruntimeInfo = nullptr;
+			ICLRRuntimeHost *VruntimeHost = nullptr;
+			pfnCLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (LPVOID*)&VmetaHost);
+			if ( nullptr == VmetaHost ) return;
+			metaHost.reset(VmetaHost);
+			metaHost->GetRuntime(L"v4.0.30319", IID_ICLRRuntimeInfo, (LPVOID*)&VruntimeInfo);
+			if ( nullptr == VruntimeInfo ) return;
+			runtimeInfo.reset(VruntimeInfo);
+			runtimeInfo->GetInterface(CLSID_CLRRuntimeHost, IID_ICLRRuntimeHost, (LPVOID*)&VruntimeHost);
+			if ( nullptr == VruntimeHost ) return;
+			runtimeHost.reset(VruntimeHost);
+			if ( S_OK != runtimeHost->Start() ) return;
+			success = true;
+		}();
+		if ( false == success )
+		{
+			runtimeHost.reset();
+			runtimeInfo.reset();
+			metaHost   .reset();
+			try { dllcoree.Unload(); } catch(...){}
+		}
+	});
+
+	return runtimeHost.get();
+}
+
+
 static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
 {
 	assert( wxIsMainThread() );
-	static wxDynamicLibrary dllcoree;
-	bool success = false;
-	typedef HRESULT (__stdcall *FuncPtr_t)(REFCLSID, REFIID, LPVOID*);
-	FuncPtr_t pfnCLRCreateInstance = nullptr;
 
-	if ( false == dllcoree.IsLoaded() )
-	{
-		dllcoree.Attach( wxDynamicLibrary::RawLoad("mscoree.dll") );
-		if ( false == dllcoree.IsLoaded() ) return nullptr;
-		pfnCLRCreateInstance = (FuncPtr_t)dllcoree.RawGetSymbol("CLRCreateInstance");
-		if ( nullptr == pfnCLRCreateInstance )
-		{
-			dllcoree.Unload();
-			return nullptr;
-		}
-	}
-
-	ICLRMetaHost    *metaHost    = nullptr;
-	ICLRRuntimeInfo *runtimeInfo = nullptr;
-	ICLRRuntimeHost *runtimeHost = nullptr;
-	DWORD retval_from_DotNet_method = 0;
-
-	pfnCLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (LPVOID*)&metaHost);
-	if ( nullptr == metaHost ) return nullptr;
-	Auto( if ( false == success ) metaHost->Release() );
-	metaHost->GetRuntime(L"v4.0.30319", IID_ICLRRuntimeInfo, (LPVOID*)&runtimeInfo);
-	if ( nullptr == runtimeInfo ) return nullptr;
-	Auto( if ( false == success ) runtimeInfo->Release() );
-	runtimeInfo->GetInterface(CLSID_CLRRuntimeHost, IID_ICLRRuntimeHost, (LPVOID*)&runtimeHost);
+	ICLRRuntimeHost *const runtimeHost = GetDotNet();
 	if ( nullptr == runtimeHost ) return nullptr;
-	Auto( if ( false == success ) runtimeHost->Release() );
-	runtimeHost->Start();
 
 	std::wstring const name = wxFileName(fileName).GetName().ToStdWstring();
 	if ( name.empty() ) return nullptr;
+
+	DWORD retval_from_DotNet_method = 0;
 
 	HRESULT const res = runtimeHost->ExecuteInDefaultAppDomain(
 		(name + L".dll"   ).c_str(),
@@ -470,10 +505,9 @@ static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dl
 
 	if ( (S_OK != res) || (666 != retval_from_DotNet_method) ) return nullptr;
 
-	auto *const p =  new wxGuiPluginDotNet(name,metaHost,runtimeInfo,runtimeHost);
+	auto *const p =  new wxGuiPluginDotNet(name,runtimeHost);
 	if ( nullptr == p ) return nullptr;
 
-	success = true;
 	return p;
 }
 
