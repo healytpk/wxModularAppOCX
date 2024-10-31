@@ -12,12 +12,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ALL_BUILD", "ALL_BUILD.vcxp
 		{47ABA340-A92C-3524-9020-D816EB794174} = {47ABA340-A92C-3524-9020-D816EB794174}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleGuiPlugin1", "C:\Users\t.healy\gitdir\healytpk\wxModularAppOCX\SampleGuiPlugin1\Win\SampleGuiPlugin1.vcxproj", "{85E2C45A-3E70-38FB-80FC-42B0F7BA4014}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleGuiPlugin1", "..\..\SampleGuiPlugin1\Win\SampleGuiPlugin1.vcxproj", "{85E2C45A-3E70-38FB-80FC-42B0F7BA4014}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B9B972FB-3C1F-3FE3-85BD-E714A07BC659} = {B9B972FB-3C1F-3FE3-85BD-E714A07BC659}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleGuiPlugin2", "C:\Users\t.healy\gitdir\healytpk\wxModularAppOCX\SampleGuiPlugin2\Win\SampleGuiPlugin2.vcxproj", "{DB9A1667-1D3A-3B2E-803D-86D7EB3E85C5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleGuiPlugin2", "..\..\SampleGuiPlugin2\Win\SampleGuiPlugin2.vcxproj", "{DB9A1667-1D3A-3B2E-803D-86D7EB3E85C5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B9B972FB-3C1F-3FE3-85BD-E714A07BC659} = {B9B972FB-3C1F-3FE3-85BD-E714A07BC659}
 	EndProjectSection
@@ -26,17 +26,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZERO_CHECK", "ZERO_CHECK.vc
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mswplugin_csharp", "C:\Users\t.healy\gitdir\healytpk\wxModularAppOCX\mswplugin_csharp\Win\mswplugin_csharp.csproj", "{E6CD9F9A-05BD-38E0-9F64-B3F8B7610FBD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mswplugin_csharp", "..\..\mswplugin_csharp\Win\mswplugin_csharp.csproj", "{E6CD9F9A-05BD-38E0-9F64-B3F8B7610FBD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B9B972FB-3C1F-3FE3-85BD-E714A07BC659} = {B9B972FB-3C1F-3FE3-85BD-E714A07BC659}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wxModularCore", "C:\Users\t.healy\gitdir\healytpk\wxModularAppOCX\wxModularCore\Win\wxModularCore.vcxproj", "{ED4A979D-43E8-3D24-97E0-53E2D2C7B5BD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wxModularCore", "..\..\wxModularCore\Win\wxModularCore.vcxproj", "{ED4A979D-43E8-3D24-97E0-53E2D2C7B5BD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B9B972FB-3C1F-3FE3-85BD-E714A07BC659} = {B9B972FB-3C1F-3FE3-85BD-E714A07BC659}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wxModularHost", "C:\Users\t.healy\gitdir\healytpk\wxModularAppOCX\wxModularHost\Win\wxModularHost.vcxproj", "{47ABA340-A92C-3524-9020-D816EB794174}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wxModularHost", "..\..\wxModularHost\Win\wxModularHost.vcxproj", "{47ABA340-A92C-3524-9020-D816EB794174}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B9B972FB-3C1F-3FE3-85BD-E714A07BC659} = {B9B972FB-3C1F-3FE3-85BD-E714A07BC659}
 		{ED4A979D-43E8-3D24-97E0-53E2D2C7B5BD} = {ED4A979D-43E8-3D24-97E0-53E2D2C7B5BD}
