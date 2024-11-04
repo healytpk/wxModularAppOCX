@@ -14,6 +14,7 @@ static void const *ForPlugins_GetHostAPI( unsigned version, void (*addr_of_wxuni
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll, wxString const &fileName);  // defined lower down in this file
 static wxGuiPluginBase* ForHost_Process_HWND_Plugin   (wxDynamicLibrary *const dll, wxString const &fileName);  // defined lower down in this file
 static wxGuiPluginBase* ForHost_Process_DotNet_Plugin (wxDynamicLibrary* const dll, wxString const &fileName);  // defined lower down in this file
+static wxGuiPluginBase* ForHost_Process_ScreenCoord_Plugin (wxDynamicLibrary* const dll, wxString const &fileName);  // defined lower down in this file
 
 wxModularCore::wxModularCore()
 	: m_Settings(new wxModularCoreSettings), m_Handler(new wxEvtHandler)
@@ -94,6 +95,10 @@ wxGuiPluginBase *wxModularCore::LoadPlugin(wxString const &fileName)
         /* nothing to do in here */
     }
     else if ( plugin = ForHost_Process_DotNet_Plugin(&dll, fileName) )
+    {
+        /* nothing to do in here */
+    }
+    else if ( plugin = ForHost_Process_ScreenCoord_Plugin(&dll, fileName) )
     {
         /* nothing to do in here */
     }
@@ -220,6 +225,19 @@ void TabWindowForPlugin::ShowPluginWidgets(void)
     this->child = this->plugin->CreatePanel(this);
     if ( nullptr == this->child ) return;
     Arrange(wxEXPAND);
+}
+
+static wxGuiPluginBase *ForHost_Process_ScreenCoord_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
+{
+	auto const pfnPopulate =
+		(bool(*)(int,int,int,int)) dll->RawGetSymbol("PopulateScreenCoord");
+
+	if ( nullptr == pfnPopulate) return nullptr;
+
+	auto *const plugin = new(std::nothrow) wxGuiPluginScreenCoord(pfnPopulate);
+	if ( nullptr != plugin ) return plugin;
+
+	return nullptr;
 }
 
 // Global objects
@@ -510,7 +528,6 @@ static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dl
 
 	return p;
 }
-
 
 #else
 

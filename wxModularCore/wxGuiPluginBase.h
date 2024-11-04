@@ -25,6 +25,28 @@ DECLARE_EXPORTED_EVENT_TYPE(DEMO_API, wxEVT_GUI_PLUGIN_INTEROP, wxEVT_USER_FIRST
 typedef wxGuiPluginBase *(*CreatePlugin_function)( void const *(*const ForPlugins_GetHostAPI)( unsigned version, void (*addr_of_wxuninit)(void) ) );
 typedef void (*DeletePlugin_function)(wxGuiPluginBase*);
 
+class wxGuiPluginScreenCoord : public wxGuiPluginBase {
+public:
+	typedef bool (*FuncPtr_t)(int,int,int,int);
+
+protected:
+	FuncPtr_t const pfnPopulate;
+
+public:
+	virtual bool ShouldInsertSpacers(void) const override { return false; }
+
+	wxGuiPluginScreenCoord(FuncPtr_t);
+	~wxGuiPluginScreenCoord(void) override;
+
+	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
+	virtual void SetEventHandler(wxEvtHandler*) override {}
+
+	virtual wxString GetName(void) const override { return "Name ScreenCoord Plugin 0"; }
+	virtual wxString GetId(void) const override   { return "ID   ScreenCoord Plugin 0"; }
+
+	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
+};
+
 #ifdef __WXMSW__
 
 class wxGuiPluginOCX : public wxGuiPluginBase {

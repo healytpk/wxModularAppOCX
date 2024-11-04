@@ -2,6 +2,32 @@
 
 DEFINE_EVENT_TYPE(wxEVT_GUI_PLUGIN_INTEROP)
 
+wxGuiPluginScreenCoord::wxGuiPluginScreenCoord(FuncPtr_t const arg) : pfnPopulate(arg)
+{
+    assert( nullptr != arg );
+}
+
+wxGuiPluginScreenCoord::~wxGuiPluginScreenCoord(void)
+{
+}
+
+wxWindow *wxGuiPluginScreenCoord::CreatePanel(wxWindow *const parent)
+{
+    assert( nullptr != parent );
+    wxPanel *const mypanel = new(std::nothrow) wxPanel(parent, wxID_ANY);
+    if ( nullptr == mypanel ) return nullptr;
+    bool retval = false;
+    try
+    {
+        auto const rect = parent->GetScreenRect();
+        retval = pfnPopulate( rect.x, rect.y, rect.width, rect.height );
+    }
+    catch(...){ retval = false; }
+    if ( retval ) return mypanel;
+    delete mypanel;
+    return nullptr;
+}
+
 #ifdef __WXMSW__
 
 #include <cassert>       // assert
