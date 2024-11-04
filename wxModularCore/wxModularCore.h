@@ -4,7 +4,6 @@
 #include <map>            // map
 #include <memory>         // unique_ptr
 #include <regex>          // regex, regex_match
-#include <set>            // set
 #include <utility>        // pair
 #include <vector>         // vector
 #include <wx/dir.h>       // wxDir
