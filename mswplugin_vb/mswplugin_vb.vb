@@ -11,7 +11,7 @@ Public Class Plugin
         Return 666
     End Function
 
-    Public Shared Function PopulatePanelHWND(pwzArgument As String) As Integer
+    Public Shared Function PopulatePanelNativeHandle(pwzArgument As String) As Integer
         Dim hwndParent As IntPtr = IntPtr.Zero
 
         If ULong.TryParse(pwzArgument, hwndParent) Then
