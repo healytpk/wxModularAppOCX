@@ -12,9 +12,10 @@
 
 static void const *ForPlugins_GetHostAPI( unsigned version, void (*addr_of_wxuninit)(void) ); // defined lower down in this file
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const dll, wxString const &fileName);  // defined lower down in this file
-static wxGuiPluginBase* ForHost_Process_HWND_Plugin   (wxDynamicLibrary *const dll, wxString const &fileName);  // defined lower down in this file
+static wxGuiPluginBase* ForHost_Process_NativeHandle_Plugin   (wxDynamicLibrary *const dll, wxString const &fileName);  // defined lower down in this file
 static wxGuiPluginBase* ForHost_Process_DotNet_Plugin (wxDynamicLibrary* const dll, wxString const &fileName);  // defined lower down in this file
 static wxGuiPluginBase* ForHost_Process_ScreenCoord_Plugin (wxDynamicLibrary* const dll, wxString const &fileName);  // defined lower down in this file
+static wxGuiPluginBase *ForHost_Process_Pixels_Plugin (wxDynamicLibrary* const dll, wxString const &fileName);  // defined lower down in this file
 
 wxModularCore::wxModularCore()
 	: m_Settings(new wxModularCoreSettings), m_Handler(new wxEvtHandler)
@@ -95,6 +96,14 @@ wxGuiPluginBase *wxModularCore::LoadPlugin(wxString const &fileName)
         /* nothing to do in here */
     }
     else if ( plugin = ForHost_Process_DotNet_Plugin(&dll, fileName) )
+    {
+        /* nothing to do in here */
+    }
+    else if ( plugin = ForHost_Process_NativeHandle_Plugin(&dll, fileName) )
+    {
+        /* nothing to do in here */
+    }
+    else if ( plugin = ForHost_Process_Pixels_Plugin(&dll, fileName) )
     {
         /* nothing to do in here */
     }
@@ -225,6 +234,35 @@ void TabWindowForPlugin::ShowPluginWidgets(void)
     this->child = this->plugin->CreatePanel(this);
     if ( nullptr == this->child ) return;
     Arrange(wxEXPAND);
+}
+
+static wxGuiPluginBase *ForHost_Process_NativeHandle_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
+{
+	auto const pfnPopulatePanelNativeHandle =
+		(bool(*)(void*)) dll->RawGetSymbol("PopulatePanelNativeHandle");
+
+	if ( nullptr == pfnPopulatePanelNativeHandle ) return nullptr;
+
+	auto *const plugin = new(std::nothrow) wxGuiPluginNativeHandle(pfnPopulatePanelNativeHandle);
+	if ( nullptr != plugin ) return plugin;
+
+	return nullptr;
+}
+
+static wxGuiPluginBase *ForHost_Process_Pixels_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
+{
+	auto const pfnCreate =
+		(bool(*)(void)) dll->RawGetSymbol("CreatePluginPixels");
+
+	auto const pfnRender =
+		(void(*)(PixelContainer&,int,int)) dll->RawGetSymbol("RenderWidgets");
+
+	if ( (nullptr == pfnCreate) || (nullptr == pfnRender) ) return nullptr;
+
+	auto *const plugin = new(std::nothrow) wxGuiPluginPixels(pfnCreate,pfnRender);
+	if ( nullptr != plugin ) return plugin;
+
+	return nullptr;
 }
 
 static wxGuiPluginBase *ForHost_Process_ScreenCoord_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
@@ -429,19 +467,6 @@ static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *const d
 	return nullptr;
 }
 
-static wxGuiPluginBase *ForHost_Process_HWND_Plugin(wxDynamicLibrary *const dll, wxString const &fileName)
-{
-	auto const pfnPopulatePanelHWND =
-		(bool(__stdcall*)(HWND)) dll->RawGetSymbol("PopulatePanelHWND");
-
-	if ( nullptr == pfnPopulatePanelHWND ) return nullptr;
-
-	auto *const plugin = new(std::nothrow) wxGuiPluginHWND(pfnPopulatePanelHWND);
-	if ( nullptr != plugin ) return plugin;
-
-	return nullptr;
-}
-
 template<typename T>
 class unique_releaser : public std::unique_ptr< T, void(*)(T*) noexcept > {
 protected:
@@ -533,7 +558,6 @@ static wxGuiPluginBase *ForHost_Process_DotNet_Plugin(wxDynamicLibrary *const dl
 
 // For all platforms other than MS-Windows
 static wxGuiPluginBase *ForHost_Process_ActiveX_Plugin(wxDynamicLibrary *dll, wxString const &fileName) { return nullptr; }
-static wxGuiPluginBase *ForHost_Process_HWND_Plugin   (wxDynamicLibrary *dll, wxString const &fileName) { return nullptr; }
 static wxGuiPluginBase *ForHost_Process_DotNet_Plugin (wxDynamicLibrary *dll, wxString const &fileName) { return nullptr; }
 
 #endif // ifdef __WXMSW__

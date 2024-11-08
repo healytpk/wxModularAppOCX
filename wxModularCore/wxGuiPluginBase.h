@@ -6,6 +6,7 @@
 #include <wx/object.h>      // wxObject
 #include <wx/window.h>      // wxWindow
 #include "Declarations.h"
+#include "PixelContainer.hpp"  // PixelContainer
 
 class wxGuiPluginBase : public wxObject {
 public:
@@ -24,6 +25,52 @@ DECLARE_EXPORTED_EVENT_TYPE(DEMO_API, wxEVT_GUI_PLUGIN_INTEROP, wxEVT_USER_FIRST
 
 typedef wxGuiPluginBase *(*CreatePlugin_function)( void const *(*const ForPlugins_GetHostAPI)( unsigned version, void (*addr_of_wxuninit)(void) ) );
 typedef void (*DeletePlugin_function)(wxGuiPluginBase*);
+
+class wxGuiPluginNativeHandle : public wxGuiPluginBase {
+public:
+	typedef bool (*FuncPtr_t)(void*);
+
+protected:
+	FuncPtr_t const pfnPopulate;
+
+public:
+	virtual bool ShouldInsertSpacers(void) const override { return false; }
+
+	wxGuiPluginNativeHandle(FuncPtr_t);
+	~wxGuiPluginNativeHandle(void) override;
+
+	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
+	virtual void SetEventHandler(wxEvtHandler*) override {}
+
+	virtual wxString GetName(void) const override { return "Name NativeHandle Plugin 0"; }
+	virtual wxString GetId(void) const override   { return "ID   NativeHandle Plugin 0"; }
+
+	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
+};
+
+class wxGuiPluginPixels : public wxGuiPluginBase {
+public:
+	typedef bool (*Funcptr_CreatePluginPixels_t)(void);
+	typedef void (*Funcptr_RenderWidgets_t     )(PixelContainer &pixelData, unsigned w, unsigned h);
+
+protected:
+	Funcptr_CreatePluginPixels_t const pfnCreatePluginPixels;
+	Funcptr_RenderWidgets_t      const pfnRenderWidgets;
+
+public:
+	virtual bool ShouldInsertSpacers(void) const override { return false; }
+
+	wxGuiPluginPixels(Funcptr_CreatePluginPixels_t, Funcptr_RenderWidgets_t);
+	~wxGuiPluginPixels(void) override;
+
+	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
+	virtual void SetEventHandler(wxEvtHandler*) override {}
+
+	virtual wxString GetName(void) const override { return "Name Pixels Plugin 0"; }
+	virtual wxString GetId(void) const override   { return "ID   Pixels Plugin 0"; }
+
+	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
+};
 
 class wxGuiPluginScreenCoord : public wxGuiPluginBase {
 public:
@@ -64,28 +111,6 @@ public:
 
 	virtual wxString GetName(void) const override { return "Name OCX Plugin 0"; }
 	virtual wxString GetId  (void) const override { return "ID   OCX Plugin 0"; }
-
-	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
-};
-
-class wxGuiPluginHWND : public wxGuiPluginBase {
-public:
-	typedef bool (__stdcall *FuncPtr_t)(HWND);
-
-protected:
-	FuncPtr_t const pfnPopulate;
-
-public:
-	virtual bool ShouldInsertSpacers(void) const override { return false; }
-
-	wxGuiPluginHWND(FuncPtr_t);
-	~wxGuiPluginHWND(void) override;
-
-	virtual wxEvtHandler *GetEventHandler() override { return nullptr; }
-	virtual void SetEventHandler(wxEvtHandler*) override {}
-
-	virtual wxString GetName(void) const override { return "Name HWND Plugin 0"; }
-	virtual wxString GetId(void) const override   { return "ID   HWND Plugin 0"; }
 
 	virtual wxWindow *CreatePanel(wxWindow *const parent) override;
 };
