@@ -44,9 +44,10 @@ endif(WIN32)
 
 find_package(Boost 1.86.0)
 if(NOT Boost_FOUND)
-    set(Boost_INCLUDE_DIRS "$ENV{BOOST_ROOT}/include")  # environment variable should have been set
+	set(Boost_INCLUDE_DIRS "$ENV{BOOST_ROOT}/include")  # environment variable should have been set
 endif()
-message(STATUS "Boost include directory path: ${Boost_INCLUDE_DIRS}")
+set(Boost_INCLUDE_DIRS "${Boost_INCLUDE_DIR} ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost include directory paths: ${Boost_INCLUDE_DIRS}")
 include_directories(${Boost_INCLUDE_DIRS})
 
 # Here we specify the list of wxWidgets libs which we will use in our project
