@@ -255,7 +255,7 @@ static wxGuiPluginBase *ForHost_Process_Pixels_Plugin(wxDynamicLibrary *const dl
 		(bool(*)(void)) dll->RawGetSymbol("CreatePluginPixels");
 
 	auto const pfnRender =
-		(void(*)(PixelContainer&,int,int)) dll->RawGetSymbol("RenderWidgets");
+		(void(*)(PixelContainer&,unsigned,unsigned)) dll->RawGetSymbol("RenderWidgets");
 
 	if ( (nullptr == pfnCreate) || (nullptr == pfnRender) ) return nullptr;
 
