@@ -44,10 +44,16 @@ endif(WIN32)
 
 find_package(Boost 1.86.0)
 if(NOT Boost_FOUND)
-	set(Boost_INCLUDE_DIRS "$ENV{BOOST_ROOT}/include/boost-1_86/")  # environment variable should have been set
+	set(Boost_INCLUDE_DIRS "$ENV{BOOST_ROOT}/")  # environment variable should have been set
 endif()
 message(STATUS "Boost include directory paths: ${Boost_INCLUDE_DIRS}")
 include_directories(${Boost_INCLUDE_DIRS})
+
+file(GLOB_RECURSE BOOST_FILE_LIST RELATIVE ${Boost_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}/*)
+message(STATUS "Listing directory structure for: ${Boost_INCLUDE_DIRS}")
+foreach(BOOST_FILE ${BOOST_FILE_LIST})
+    message(STATUS ${BOOST_FILE})
+endforeach()
 
 # Here we specify the list of wxWidgets libs which we will use in our project
 set(wxWidgets_USE_LIBS base core adv aui net gl xml propgrid html)
