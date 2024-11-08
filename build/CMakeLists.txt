@@ -48,7 +48,7 @@ set(PROJECT_ROOT_DIR ${PROJECT_SOURCE_DIR}/..)
 find_package(Boost 1.86.0)
 if(NOT Boost_FOUND)
 	#set(Boost_INCLUDE_DIRS "$ENV{BOOST_ROOT}/../../")  # environment variable should have been set
-	set(Boost_INCLUDE_DIRS ${PROJECT_ROOT_DIR})
+	set(Boost_INCLUDE_DIRS /tmp/wxModularAppOCX/boost/include)
 endif()
 message(STATUS "Boost include directory paths: ${Boost_INCLUDE_DIRS}")
 include_directories(${Boost_INCLUDE_DIRS})
