@@ -52,6 +52,8 @@ jobs:
         chmod +x ./cmAppleMac.sh
         ./cmAppleMac.sh
         cd ..
+      env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
     - name: Run GNU Make with GNU compiler
       run: |

@@ -50,6 +50,8 @@ jobs:
 
     - name: Execute CMake
       run: cd build && cmd /c "set WXWIN=%cd%\..\wxWidgets_MSW32 && cm86.bat" && cd ..
+      env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
     - name: Run MSBuild
       run: |

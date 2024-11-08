@@ -37,6 +37,8 @@ jobs:
     - name: Run CMake
       run: |
         cd build && ./cmLinux.sh && cd ..
+      env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
     - name: Run GNU Make with GNU compiler
       run: |
