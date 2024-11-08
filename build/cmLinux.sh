@@ -1,6 +1,8 @@
 #!/bin/bash
 echo OS Type: $OSTYPE
 
+#-DCMAKE_CXX_COMPILER=clang++
+
 # ----------------------------------
 # build Debug configuration makefile
 # ----------------------------------

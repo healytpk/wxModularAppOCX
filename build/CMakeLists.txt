@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 if(LINUX)
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+	set(ENV{ASAN_OPTIONS} "detect_invalid_pointer_pairs=2")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3 -pedantic -Wall -Wextra -rdynamic -funwind-tables -fno-omit-frame-pointer -fno-common -pthread -fsanitize=address,leak,undefined,pointer-compare,pointer-subtract,float-divide-by-zero,float-cast-overflow -fsanitize-address-use-after-scope -fcf-protection=full -fstack-protector-all -fstack-clash-protection -fvtv-debug -fvtv-counts -finstrument-functions -D_GLIBC_DEBUG -D_GLIBC_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC")
 endif(LINUX)
 
 # We will generate both Debug and Release project files at the same time
@@ -39,6 +41,9 @@ endif(LINUX)
 if(WIN32)
 	set(OS_BASE_NAME Win)
 endif(WIN32)
+
+find_package(Boost 1.86.0 REQUIRED) 
+include_directories(${Boost_INCLUDE_DIRS})
 
 # Here we specify the list of wxWidgets libs which we will use in our project
 set(wxWidgets_USE_LIBS base core adv aui net gl xml propgrid html)
