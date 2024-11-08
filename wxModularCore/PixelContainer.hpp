@@ -1,10 +1,11 @@
 #pragma once
 
-#include <boost/container/small_vector.hpp>
+#include <cstddef>                                 // size_t
+#include <boost/container/small_vector.hpp>        // small_vector
 
 class PixelContainer {
 protected:
-    typedef boost::container::small_vector<unsigned,16777216ul> Container_t;
+    typedef boost::container::small_vector<unsigned,16777216u> Container_t;
     Container_t container;
     unsigned w = 0, h = 0;
 public:
@@ -15,7 +16,7 @@ public:
     {
         w = argw;
         h = argh;
-        this->container.resize(argw * argh);
+        this->container.resize( static_cast<std::size_t>(w) * h );
     }
 
     class SquareBracketClass {
