@@ -167,7 +167,7 @@ wxString wxModularCore::GetPluginsPath(bool forceProgramPath) const
 std::regex wxModularCore::GetPluginRegex() const
 {
 #if defined(__WXMSW__)
-	return std::regex("(.*\\\\)?(((?!wx)[^\\\\]*\\.dll)|([^\\\\]*\\.ocx))", std::regex::icase);
+	return std::regex("(.*\\\\)?(((?!(wx|qt))[^\\\\]*\\.dll)|([^\\\\]*\\.ocx))", std::regex::icase);
 #elif defined(__WXGTK__)
 	return std::regex("(.*/)?((?!libwx)[^/]+)\\.so(\\.[0-9]+)*");
 #elif defined(__WXMAC__)

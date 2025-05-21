@@ -17,7 +17,7 @@
 #include <optional>
 #include <thread>
 
-#if 1
+#if 0
 
 int g_x = 0, g_y = 0, g_w = 0, g_h = 0;
 
@@ -32,7 +32,7 @@ int g_x = 0, g_y = 0, g_w = 0, g_h = 0;
 QWidget *parentWidget = nullptr;
 
 // Function to render widgets into a QPixmap and extract the pixel data
-extern "C" void RenderWidgets(PixelContainer &pixelData, unsigned const w, unsigned const h)
+extern "C" __declspec(dllexport) void RenderWidgets(PixelContainer &pixelData, unsigned const w, unsigned const h)
 {
     assert( nullptr != &pixelData );  // just for debug
 
@@ -59,7 +59,7 @@ extern "C" void RenderWidgets(PixelContainer &pixelData, unsigned const w, unsig
     }
 }
 
-extern "C" bool CreatePluginPixels(void)
+extern "C" __declspec(dllexport) bool CreatePluginPixels(void)
 {
     //std::cout << "Entered function: DrawWidgets\n";
 
@@ -184,7 +184,7 @@ extern "C" bool PopulateScreenCoord(int const x, int const y, int const w, int c
 
 #else
 
-extern "C" bool PopulatePanelNativeHandle(void *const handle)
+extern "C" __declspec(dllexport) bool PopulatePanelNativeHandle(void *const handle)
 {
     assert( nullptr != handle );
 
@@ -207,10 +207,14 @@ extern "C" bool PopulatePanelNativeHandle(void *const handle)
            active = true;
            app = new QApplication(argc,argv);
            auto *const qtWin = QWindow::fromWinId( (std::uintptr_t)handle );
+#if 0
            auto *const grandparentWidget = QWidget::createWindowContainer(qtWin);
            grandparentWidget->winId();
-           //grandparentWidget->windowHandle()->setParent(qtWin);
+           grandparentWidget->windowHandle()->setParent(qtWin);
            parentWidget = new QWidget(grandparentWidget);
+#else
+           parentWidget = QWidget::createWindowContainer(qtWin);
+#endif
            //parentWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
            //parentWidget->setAttribute(Qt::WA_TranslucentBackground);
            button = new QPushButton( "Click me!", parentWidget );
@@ -222,7 +226,11 @@ extern "C" bool PopulatePanelNativeHandle(void *const handle)
            auto *const layout = new QVBoxLayout;
            layout->addWidget(button);
            parentWidget->setLayout(layout);
+#if 0
            grandparentWidget->show();
+#else
+           parentWidget->show();
+#endif
        });
 
     //parentWidget->setGeometry(x, y, w, h);
